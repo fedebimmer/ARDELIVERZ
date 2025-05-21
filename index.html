@@ -1,9 +1,284 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A.R. AUTO - Delivery Manager (DEBUG)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Librerie PDF caricate con defer per il test -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.1/jspdf.plugin.autotable.min.js" defer></script>
+
+    <style>
+        :root {
+            --bg-main: #2D2D2D;
+            --bg-card: #4A4A4A;
+            --text-main: #E0E0E0;
+            --text-secondary: #B0B0B0;
+            --input-bg: #3D3D3D;
+            --border-color: #555;
+            --accent-blue: #60a5fa; /* Tailwind blue-400 */
+        }
+
+        body.light-theme {
+            --bg-main: #f3f4f6; /* Tailwind gray-100 */
+            --bg-card: #ffffff;
+            --text-main: #1f2937; /* Tailwind gray-800 */
+            --text-secondary: #4b5563; /* Tailwind gray-600 */
+            --input-bg: #e5e7eb; /* Tailwind gray-200 */
+            --border-color: #d1d5db; /* Tailwind gray-300 */
+            --accent-blue: #3b82f6; /* Tailwind blue-500 */
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            -webkit-tap-highlight-color: transparent;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .card {
+            background-color: var(--bg-card);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            transition: background-color 0.3s;
+        }
+        .input-field {
+            background-color: var(--input-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            border-radius: 0.375rem;
+            padding: 0.75rem 1rem;
+            width: 100%;
+            transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+        }
+        .input-field::placeholder {
+            color: var(--text-secondary);
+        }
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.375rem;
+            font-weight: 600;
+            transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out, opacity 0.2s ease-in-out;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            cursor: pointer;
+        }
+        .btn-primary {
+            background-color: #28a745;
+            color: white;
+        }
+        .btn-primary:hover { background-color: #218838; }
+        .btn-secondary {
+            background-color: #555;
+            color: white;
+        }
+        body.light-theme .btn-secondary {
+            background-color: #e5e7eb; /* gray-200 */
+            color: #374151; /* gray-700 */
+            border: 1px solid #d1d5db; /* gray-300 */
+        }
+        body.light-theme .btn-secondary:hover {
+             background-color: #d1d5db; /* gray-300 */
+        }
+        .btn-secondary:hover { background-color: #444; }
+
+        .btn-danger { background-color: #dc3545; color: white; }
+        .btn-danger:hover { background-color: #c82333; }
+        .btn-neutral { background-color: #6c757d; color: white; }
+        .btn-neutral:hover { background-color: #5a6268; }
+        body.light-theme .btn-neutral {
+            background-color: #d1d5db; /* gray-300 */
+            color: #374151; /* gray-700 */
+        }
+        body.light-theme .btn-neutral:hover {
+            background-color: #9ca3af; /* gray-400 */
+        }
+
+        .btn-small { padding: 0.5rem 0.75rem; font-size: 0.875rem; }
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            left: 20px;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 1rem 1.5rem;
+            border-radius: 0.375rem;
+            color: white;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out, transform 0.3s ease-in-out;
+            max-width: 350px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transform: translateY(20px);
+        }
+        @media (min-width: 640px) { .toast { left: auto; max-width: 400px; } }
+        .toast.show { opacity: 1; transform: translateY(0); }
+        .toast-success { background-color: #333; }
+        .toast-error { background-color: #dc3545; }
+        .admin-modal-bg { background-color: rgba(0,0,0,0.7); }
+        .badge { padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
+        .badge-warning { background-color: #ffc107; color: #212529; }
+
+        /* Drag and Drop Styles */
+        .customer-draggable-item {
+            padding: 0.5rem;
+            border: 1px dashed var(--border-color);
+            border-radius: 0.25rem;
+            cursor: grab;
+            display: flex;
+            align-items: center;
+            background-color: var(--input-bg);
+        }
+        .customer-draggable-item:active { cursor: grabbing; }
+        .customer-draggable-item.dragging { opacity: 0.5; background-color: #6c757d; }
+        .drag-handle { margin-right: 0.5rem; color: var(--text-secondary); }
+
+        /* Stili per tema chiaro/scuro specifici */
+        body.light-theme #openAdminModalLink { color: var(--accent-blue); }
+        body.light-theme #openAdminModalLink:hover { color: #2563eb; }
+        body.light-theme .text-blue-400 { color: var(--accent-blue); }
+        body.light-theme .hover\:text-blue-300:hover { color: #2563eb; }
+        body.light-theme .bg-yellow-500 { background-color: #fef9c3; color: #713f12; border: 1px solid #fde047; }
+        body.light-theme .text-yellow-900 { color: #713f12; }
+        body.light-theme .badge-warning { background-color: #fde047; color: #713f12; }
+        body.light-theme .bg-gray-500 { background-color: #e5e7eb; }
+        body.light-theme .bg-gray-600 { background-color: #f3f4f6; }
+        body.light-theme .text-gray-300 { color: #6b7280; }
+        body.light-theme .text-gray-400 { color: #9ca3af; }
+        body.light-theme .text-gray-500 { color: #6b7280; }
+        
+        .file-input-label {
+            border: 1px solid var(--border-color);
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            border-radius: 0.375rem;
+            background-color: var(--input-bg);
+            color: var(--text-main);
+        }
+        .file-input-label:hover {
+            background-color: var(--border-color);
+        }
+        #importFile::file-selector-button { display: none; }
+    </style>
+</head>
+<body class="min-h-screen p-4 sm:p-6 md:p-8">
+
+    <div id="app" class="max-w-4xl mx-auto">
+        <header class="text-center mb-6 md:mb-8">
+            <div class="text-xl sm:text-2xl font-bold mb-1 sm:mb-2">A.R. AUTO SNC CAR PARTS</div>
+            <h1 class="text-2xl sm:text-3xl font-bold">A.R. AUTO - Delivery Manager (DEBUG)</h1>
+            <p class="text-xs sm:text-sm text-gray-400 mb-2">Prodotto da Federico Battistella</p>
+            <a href="#" id="openAdminModalLink" class="text-blue-400 hover:text-blue-300 underline text-sm sm:text-base">Accedi alla Dashboard Admin (NON FUNZIONANTE IN DEBUG)</a>
+        </header>
+
+        <main id="mainContent">
+            <section id="driverSection" class="card">
+                <h2 class="text-lg sm:text-xl font-semibold mb-4 flex items-center"><i class="fas fa-user mr-2"></i>Fattorino</h2>
+                <div id="driverInputContainer">
+                    <label for="driverNameInput" class="block text-sm font-medium mb-1">Nome Fattorino</label>
+                    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                        <input type="text" id="driverNameInput" class="input-field flex-grow mb-2 sm:mb-0" placeholder="Inserisci il tuo nome (DEBUG)">
+                        <button id="saveDriverBtn" class="btn btn-primary w-full sm:w-auto"><i class="fas fa-save"></i> Salva</button>
+                    </div>
+                </div>
+                <!-- driverDisplayContainer omesso per semplicità di debug -->
+            </section>
+
+            <!-- activeRoundWarning omesso per semplicità di debug -->
+
+            <section id="customerInputSection" class="card">
+                <h2 class="text-lg sm:text-xl font-semibold mb-4 flex items-center"><i class="fas fa-users mr-2"></i>Inserimento Clienti (Trascina per riordinare - NON FUNZIONANTE IN DEBUG)</h2>
+                <div id="customerListContainer" class="space-y-2 mb-4">
+                    <!-- Input clienti omessi per semplicità di debug, verranno gestiti da JS -->
+                    <p>Area input clienti (debug)</p>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <button id="addCustomerBtn" class="btn btn-secondary w-full sm:w-auto order-2 sm:order-1"><i class="fas fa-plus"></i> Aggiungi Cliente</button>
+                    <button id="startRoundBtn" class="btn btn-primary w-full sm:w-auto order-1 sm:order-2 flex-grow"><i class="fas fa-play"></i> Inizia Giro</button>
+                </div>
+            </section>
+
+            <!-- activeRoundSection omesso per semplicità di debug -->
+
+            <section id="statsSection" class="card">
+                <h2 class="text-lg sm:text-xl font-semibold mb-4 flex items-center"><i class="fas fa-chart-bar mr-2"></i>Statistiche Consegne (Oggi)</h2>
+                <div id="dailyStatsContent">
+                    <p class="text-sm sm:text-base">Panoramica delle consegne odierne:</p>
+                    <ul class="list-disc list-inside pl-2 mt-2 space-y-1 text-xs sm:text-sm">
+                        <li>Giri completati oggi: <span id="statsTodayRounds">0</span></li>
+                        <li>Clienti serviti oggi: <span id="statsTodayCustomers">0</span></li>
+                        <li>Tempo totale consegne oggi: <span id="statsTodayTotalTime">0 ore 0 min</span></li>
+                        <li>Tempo medio per giro oggi: <span id="statsTodayAvgTimePerRound">0 min</span></li>
+                    </ul>
+                </div>
+                 <p id="noStatsToday" class="text-gray-400 hidden text-sm sm:text-base">Nessuna statistica disponibile per oggi.</p>
+            </section>
+
+            <section id="historySection" class="card">
+                <h2 class="text-lg sm:text-xl font-semibold mb-4 flex items-center"><i class="fas fa-history mr-2"></i>Cronologia Consegne</h2>
+                <div class="mb-4">
+                    <label for="historySearchInput" class="block text-sm font-medium mb-1">Cerca nella Cronologia (NON FUNZIONANTE IN DEBUG):</label>
+                    <input type="text" id="historySearchInput" class="input-field mb-3" placeholder="Nome fattorino, cliente, data (GG/MM/AAAA)...">
+                </div>
+                <div class="mb-4 flex flex-wrap gap-2">
+                    <button id="downloadReportBtn" class="btn btn-neutral text-sm"><i class="fas fa-file-download mr-2"></i>JSON</button>
+                    <button id="downloadCsvReportBtn" class="btn btn-neutral text-sm"><i class="fas fa-file-csv mr-2"></i>CSV</button>
+                    <button id="downloadPdfReportBtn" class="btn btn-neutral text-sm"><i class="fas fa-file-pdf mr-2"></i>PDF</button>
+                </div>
+                <div id="deliveryHistoryList" class="space-y-4">
+                    <p>Area cronologia (debug)</p>
+                </div>
+                <div id="noHistoryMessage" class="text-center py-6 hidden">
+                    <i class="fas fa-box-open fa-3x text-gray-500 mb-3"></i>
+                    <p class="text-gray-400 text-sm sm:text-base">Nessuna consegna registrata.</p>
+                </div>
+            </section>
+            
+            <section id="settingsSection" class="card">
+                <h2 class="text-lg sm:text-xl font-semibold mb-4 flex items-center"><i class="fas fa-cogs mr-2"></i>Impostazioni e Dati (BACKUP NON FUNZIONANTE IN DEBUG)</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <h3 class="font-medium mb-2">Tema Applicazione</h3>
+                        <button id="themeToggleBtn" class="btn btn-secondary w-full"><i class="fas fa-adjust mr-2"></i>Cambia Tema</button>
+                    </div>
+                    <div>
+                        <h3 class="font-medium mb-2">Backup Dati</h3>
+                        <div class="flex flex-col gap-2">
+                            <button id="exportAllDataBtn" class="btn btn-neutral w-full" disabled><i class="fas fa-file-export mr-2"></i>Esporta Tutti i Dati (DEBUG: Disabilitato)</button>
+                            <div>
+                                <label for="importFile" class="file-input-label w-full text-center" disabled>
+                                    <i class="fas fa-file-import mr-2"></i> Seleziona file per Importo (DEBUG: Disabilitato)
+                                </label>
+                                <input type="file" id="importFile" class="hidden" accept=".json" disabled>
+                            </div>
+                            <button id="importAllDataBtn" class="btn btn-neutral w-full mt-1" disabled><i class="fas fa-upload mr-2"></i>Importa Dati Selezionati (DEBUG: Disabilitato)</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Admin Panel e Admin Login Modal omessi per semplicità di debug -->
+    </div>
+
+    <div id="toastContainer"></div>
+
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     console.log("DEBUG: DOMContentLoaded event fired. Script execution started.");
 
     // === ELEMENTI DOM ===
-    // È FONDAMENTALE CHE GLI ID QUI SOTTO CORRISPONDANO ESATTAMENTE A QUELLI NEL TUO HTML
     const saveDriverBtn = document.getElementById('saveDriverBtn');
     const addCustomerBtn = document.getElementById('addCustomerBtn');
     const startRoundBtn = document.getElementById('startRoundBtn');
@@ -12,23 +287,30 @@ document.addEventListener('DOMContentLoaded', () => {
     const downloadPdfReportBtn = document.getElementById('downloadPdfReportBtn');
     const themeToggleBtn = document.getElementById('themeToggleBtn');
 
-    // Elementi necessari per le funzioni dei pulsanti (elenco parziale per debug)
     const driverNameInput = document.getElementById('driverNameInput');
-    const customerListContainer = document.getElementById('customerListContainer');
-    const historySearchInput = document.getElementById('historySearchInput');
+    // const customerListContainer = document.getElementById('customerListContainer'); // Meno critico per test pulsanti base
+    // const historySearchInput = document.getElementById('historySearchInput'); // Meno critico per test pulsanti base
 
     console.log("DEBUG: DOM element constants defined.");
+    if(saveDriverBtn) console.log("DEBUG: saveDriverBtn FOUND"); else console.error("DEBUG: saveDriverBtn NOT FOUND");
+    if(addCustomerBtn) console.log("DEBUG: addCustomerBtn FOUND"); else console.error("DEBUG: addCustomerBtn NOT FOUND");
+    if(startRoundBtn) console.log("DEBUG: startRoundBtn FOUND"); else console.error("DEBUG: startRoundBtn NOT FOUND");
+    if(downloadReportBtn) console.log("DEBUG: downloadReportBtn FOUND"); else console.error("DEBUG: downloadReportBtn NOT FOUND");
+    if(downloadCsvReportBtn) console.log("DEBUG: downloadCsvReportBtn FOUND"); else console.error("DEBUG: downloadCsvReportBtn NOT FOUND");
+    if(downloadPdfReportBtn) console.log("DEBUG: downloadPdfReportBtn FOUND"); else console.error("DEBUG: downloadPdfReportBtn NOT FOUND");
+    if(themeToggleBtn) console.log("DEBUG: themeToggleBtn FOUND"); else console.error("DEBUG: themeToggleBtn NOT FOUND");
+    if(driverNameInput) console.log("DEBUG: driverNameInput FOUND"); else console.error("DEBUG: driverNameInput NOT FOUND");
+
 
     // === VARIABILI GLOBALI DI STATO (Semplificate per debug) ===
     let currentDriver = '';
-    let customers = ["", ""]; // Inizializziamo per avere qualcosa da vedere
+    let customers = ["Cliente Debug 1", "Cliente Debug 2"];
     let deliveryHistory = [];
     let activeRound = null;
-    // WHATSAPP_NUMBER e ADMIN_PASSWORD non sono direttamente coinvolti nel problema dei pulsanti, li ometto per brevità qui
 
     console.log("DEBUG: Global state variables initialized.");
 
-    // === FUNZIONI HELPER MINIME (Solo quelle indispensabili per i test dei pulsanti) ===
+    // === FUNZIONI HELPER MINIME ===
     function showToast(message, type = 'success') {
         console.log(`DEBUG: showToast called - Message: "${message}", Type: "${type}"`);
         const toastContainer = document.getElementById('toastContainer');
@@ -43,11 +325,11 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => toast.classList.add('show'), 100);
         setTimeout(() => {
             toast.classList.remove('show');
-            setTimeout(() => toast.remove(), 500);
+            setTimeout(() => { if(toast.parentElement) toast.remove(); }, 500);
         }, 3000);
     }
 
-    function formatDate(dateString) { // Usato da startRoundBtn
+    function formatDate(dateString) {
         if (!dateString) return 'N/A';
         const date = new Date(dateString);
         const day = String(date.getDate()).padStart(2, '0');
@@ -68,13 +350,13 @@ document.addEventListener('DOMContentLoaded', () => {
             alert("DEBUG: Pulsante 'Salva Fattorino' premuto!");
             if (!driverNameInput) {
                 console.error("DEBUG: driverNameInput non trovato in saveDriverBtn handler");
+                showToast('Errore interno: campo nome non trovato (DEBUG).', 'error');
                 return;
             }
             const name = driverNameInput.value.trim();
             if (name) {
                 currentDriver = name;
-                // updateDriverUI(); // Commentato per semplificare
-                // saveAllData(); // Commentato per semplificare
+                localStorage.setItem('deliveryManager_driverName', currentDriver);
                 showToast('Nome fattorino salvato (DEBUG)!');
                 console.log("DEBUG: Nome fattorino salvato:", currentDriver);
             } else {
@@ -83,28 +365,27 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         console.log("DEBUG: Event listener per 'saveDriverBtn' AGGIUNTO.");
     } else {
-        console.error("DEBUG: 'saveDriverBtn' NON TROVATO nel DOM.");
+        console.error("DEBUG: 'saveDriverBtn' NON TROVATO nel DOM. Listener non aggiunto.");
     }
 
     if (addCustomerBtn) {
         addCustomerBtn.addEventListener('click', () => {
             console.log("DEBUG: 'Aggiungi Cliente' CLICKED!");
             alert("DEBUG: Pulsante 'Aggiungi Cliente' premuto!");
-            customers.push('');
-            // renderCustomerInputs(); // Commentato per semplificare
-            // saveAllData(); // Commentato per semplificare
+            customers.push('Nuovo Cliente Debug');
             console.log("DEBUG: Cliente aggiunto, ora clienti:", customers);
             showToast('Cliente aggiunto (DEBUG)');
         });
         console.log("DEBUG: Event listener per 'addCustomerBtn' AGGIUNTO.");
     } else {
-        console.error("DEBUG: 'addCustomerBtn' NON TROVATO nel DOM.");
+        console.error("DEBUG: 'addCustomerBtn' NON TROVATO nel DOM. Listener non aggiunto.");
     }
 
     if (startRoundBtn) {
         startRoundBtn.addEventListener('click', () => {
             console.log("DEBUG: 'Inizia Giro' CLICKED!");
             alert("DEBUG: Pulsante 'Inizia Giro' premuto!");
+            currentDriver = localStorage.getItem('deliveryManager_driverName') || (driverNameInput ? driverNameInput.value.trim() : '');
             if (!currentDriver) {
                 showToast('Inserisci il nome del fattorino (DEBUG).', 'error');
                 if (driverNameInput) driverNameInput.focus();
@@ -115,41 +396,47 @@ document.addEventListener('DOMContentLoaded', () => {
                 showToast('Inserisci almeno un cliente (DEBUG).', 'error');
                 return;
             }
-            activeRound = { /* ... dati giro ... */ driverName: currentDriver, customers: validCustomers, startTime: new Date().toISOString() };
+            activeRound = { id: `debug_round_${new Date().getTime()}`, driverName: currentDriver, customers: validCustomers, startTime: new Date().toISOString(), status: 'attivo' };
             console.log("DEBUG: Giro iniziato:", activeRound);
             showToast('Giro iniziato (DEBUG)!');
-            // Il resto della logica (WhatsApp, updateUI, etc.) è omesso per semplicità
         });
         console.log("DEBUG: Event listener per 'startRoundBtn' AGGIUNTO.");
     } else {
-        console.error("DEBUG: 'startRoundBtn' NON TROVATO nel DOM.");
+        console.error("DEBUG: 'startRoundBtn' NON TROVATO nel DOM. Listener non aggiunto.");
     }
 
     if (themeToggleBtn) {
         themeToggleBtn.addEventListener('click', () => {
             console.log("DEBUG: 'Cambia Tema' CLICKED!");
             alert("DEBUG: Pulsante 'Cambia Tema' premuto!");
-            // toggleTheme(); // La funzione completa è omessa, ma la logica di base del click dovrebbe funzionare
-            document.body.classList.toggle('light-theme'); // Semplice toggle per test
-            localStorage.setItem('deliveryManager_theme', document.body.classList.contains('light-theme') ? 'light' : 'dark');
-            showToast('Tema cambiato (DEBUG)');
+            document.body.classList.toggle('light-theme');
+            const newTheme = document.body.classList.contains('light-theme') ? 'light' : 'dark';
+            localStorage.setItem('deliveryManager_theme', newTheme);
+            if (themeToggleBtn) themeToggleBtn.innerHTML = `<i class="fas fa-adjust mr-2"></i>Cambia Tema (${newTheme})`;
+            showToast(`Tema cambiato a ${newTheme} (DEBUG)`);
         });
         console.log("DEBUG: Event listener per 'themeToggleBtn' AGGIUNTO.");
     } else {
-        console.error("DEBUG: 'themeToggleBtn' NON TROVATO nel DOM.");
+        console.error("DEBUG: 'themeToggleBtn' NON TROVATO nel DOM. Listener non aggiunto.");
     }
 
-    // Listener per pulsanti di export (con logica interna semplificata o solo log)
     if (downloadReportBtn) { // JSON
         downloadReportBtn.addEventListener('click', () => {
             console.log("DEBUG: 'JSON Export' CLICKED!");
             alert("DEBUG: Pulsante 'JSON Export' premuto!");
             showToast('Esportazione JSON avviata (DEBUG)');
-            // Logica di export omessa per il test del click
+            const dataToExport = { debug: true, history: deliveryHistory, active: activeRound, timestamp: new Date() };
+            const dataStr = JSON.stringify(dataToExport, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', 'debug_report.json');
+            linkElement.click();
+            linkElement.remove();
         });
         console.log("DEBUG: Event listener per 'downloadReportBtn' (JSON) AGGIUNTO.");
     } else {
-        console.error("DEBUG: 'downloadReportBtn' (JSON) NON TROVATO nel DOM.");
+        console.error("DEBUG: 'downloadReportBtn' (JSON) NON TROVATO nel DOM. Listener non aggiunto.");
     }
 
     if (downloadCsvReportBtn) {
@@ -157,11 +444,17 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log("DEBUG: 'CSV Export' CLICKED!");
             alert("DEBUG: Pulsante 'CSV Export' premuto!");
             showToast('Esportazione CSV avviata (DEBUG)');
-            // Logica di export omessa
+            let csvContent = "Colonna1;Colonna2\nValore1;Valore2\n";
+            const dataUri = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csvContent);
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', 'debug_report.csv');
+            linkElement.click();
+            linkElement.remove();
         });
         console.log("DEBUG: Event listener per 'downloadCsvReportBtn' AGGIUNTO.");
     } else {
-        console.error("DEBUG: 'downloadCsvReportBtn' NON TROVATO nel DOM.");
+        console.error("DEBUG: 'downloadCsvReportBtn' NON TROVATO nel DOM. Listener non aggiunto.");
     }
     
     if (downloadPdfReportBtn) {
@@ -175,17 +468,20 @@ document.addEventListener('DOMContentLoaded', () => {
                     showToast('Libreria PDF (jsPDF) non caricata (DEBUG).', 'error');
                     return;
                 }
-                const ConstructorJsPDF = window.jspdf.jsPDF;
+                const ConstructorJsPDF = window.jspdf.jsPDF; // Assumendo che l'UMD metta jsPDF qui
                 const doc = new ConstructorJsPDF();
 
+                // jspdf-autotable dovrebbe aggiungere .autoTable al prototipo di jsPDF
+                // Quindi dovrebbe essere disponibile come doc.autoTable
                 if (typeof doc.autoTable !== 'function') {
                     console.error('DEBUG: jsPDF autoTable plugin non è caricato su doc.autoTable.');
                     showToast('Libreria PDF (plugin autoTable) non caricata (DEBUG).', 'error');
                     return;
                 }
                 console.log("DEBUG: jsPDF e autoTable sembrano caricati per il test PDF.");
+                doc.text("Hello Debug PDF!", 10, 10);
+                doc.save("debug_report.pdf");
                 showToast('Esportazione PDF avviata (Librerie OK - DEBUG)');
-                // Logica di creazione PDF omessa
             } catch (error) {
                 console.error("DEBUG: Errore durante il test del PDF:", error);
                 showToast('Errore imprevisto durante il test del PDF (DEBUG).', 'error');
@@ -193,32 +489,39 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         console.log("DEBUG: Event listener per 'downloadPdfReportBtn' AGGIUNTO.");
     } else {
-        console.error("DEBUG: 'downloadPdfReportBtn' NON TROVATO nel DOM.");
+        console.error("DEBUG: 'downloadPdfReportBtn' NON TROVATO nel DOM. Listener non aggiunto.");
     }
 
-    // === INIZIALIZZAZIONE MINIMA (caricamento dati e UI semplificati) ===
+    // === INIZIALIZZAZIONE MINIMA ===
     function initialLoad() {
         console.log("DEBUG: Chiamata initialLoad()");
         try {
-            // Simuliamo caricamento tema
-            const savedTheme = localStorage.getItem('deliveryManager_theme');
+            const savedTheme = localStorage.getItem('deliveryManager_theme') || 'dark';
             if (savedTheme === 'light') {
                 document.body.classList.add('light-theme');
             } else {
                 document.body.classList.remove('light-theme');
             }
-            if (themeToggleBtn) themeToggleBtn.innerHTML = `<i class="fas fa-adjust mr-2"></i>Cambia Tema (${savedTheme || 'dark'})`;
+            if (themeToggleBtn) themeToggleBtn.innerHTML = `<i class="fas fa-adjust mr-2"></i>Cambia Tema (${savedTheme})`;
 
-
-            // Visualizza nome fattorino se presente
             currentDriver = localStorage.getItem('deliveryManager_driverName') || '';
-            if (driverNameInput) driverNameInput.value = currentDriver; // Mostra nel campo per semplicità
-            // Qui normalmente chiameresti updateDriverUI() etc.
+            if (driverNameInput) driverNameInput.value = currentDriver;
 
             // Statistiche (valori statici per debug)
             const statsTodayRounds = document.getElementById('statsTodayRounds');
-            if (statsTodayRounds) statsTodayRounds.textContent = '0 (DEBUG)';
-            // ... e così via per le altre statistiche e la cronologia
+            const statsTodayCustomers = document.getElementById('statsTodayCustomers');
+            const statsTodayTotalTime = document.getElementById('statsTodayTotalTime');
+            const statsTodayAvgTimePerRound = document.getElementById('statsTodayAvgTimePerRound');
+
+            if (statsTodayRounds) statsTodayRounds.textContent = 'X (DEBUG)';
+            if (statsTodayCustomers) statsTodayCustomers.textContent = 'Y (DEBUG)';
+            if (statsTodayTotalTime) statsTodayTotalTime.textContent = 'Z ore (DEBUG)';
+            if (statsTodayAvgTimePerRound) statsTodayAvgTimePerRound.textContent = 'W min (DEBUG)';
+            
+            // Mostra che la lista clienti è gestita da JS
+            const customerListContainer = document.getElementById('customerListContainer');
+            if(customerListContainer) customerListContainer.innerHTML = `<p>Clienti debug: ${customers.join(', ')}</p>`;
+
 
             console.log("DEBUG: InitialLoad completata.");
         } catch(e) {
@@ -227,8 +530,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    initialLoad(); // Esegui il caricamento iniziale
+    initialLoad();
     console.log("DEBUG: Script principale terminato (listeners dovrebbero essere attivi).");
 
 });
 </script>
+</body>
+</html>
