@@ -1,0 +1,103 @@
+:root {
+  --bg: #1e1e1e;
+  --card-bg: #2c2c2c;
+  --text: #ffffff;
+  --accent: #28a745;
+  --danger: #dc3545;
+  --link: #4ea7ff;
+}
+
+body {
+  font-family: 'Inter', Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  margin: 0;
+  padding: 0;
+}
+
+header {
+  text-align: center;
+  padding: 20px 10px;
+}
+
+.subtitle {
+  color: #b3b3b3;
+}
+
+a#admin-link {
+  color: var(--link);
+}
+
+.container {
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 0 10px 40px;
+}
+
+.card {
+  background: var(--card-bg);
+  padding: 20px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+}
+
+input.text-input {
+  width: 100%;
+  padding: 10px;
+  margin-top: 8px;
+  border: 1px solid #555;
+  border-radius: 6px;
+  background: #3a3a3a;
+  color: var(--text);
+  box-sizing: border-box;
+}
+
+button {
+  padding: 10px 16px;
+  margin-top: 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+button.primary {
+  background: var(--accent);
+  color: #fff;
+}
+
+button.danger {
+  background: var(--danger);
+  color: #fff;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.hidden { display: none; }
+
+#toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: rgba(0,0,0,0.8);
+  color: var(--text);
+  padding: 12px 20px;
+  border-radius: 6px;
+}
+
+@media (min-width: 480px) {
+  .card {
+    padding: 24px;
+  }
+}
+
+@media (min-width: 768px) {
+  .container {
+    max-width: 720px;
+  }
+}
