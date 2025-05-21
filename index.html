@@ -72,16 +72,16 @@
         .btn-neutral:hover {
             background-color: #5a6268;
         }
-        /* Stile per bottoni piccoli (es. rimuovi cliente) */
+        /* Stile per bottoni piccoli (es. rimuovi cliente, copia in toast) */
         .btn-small {
-            padding: 0.5rem 0.75rem; /* Padding ridotto per bottoni piccoli */
-            font-size: 0.875rem; /* Testo leggermente più piccolo */
+            padding: 0.5rem 0.75rem; 
+            font-size: 0.875rem; 
         }
         .toast {
             position: fixed;
             bottom: 20px;
             right: 20px;
-            left: 20px; /* Aggiunto per centrare su mobile se troppo largo */
+            left: 20px; 
             margin-left: auto;
             margin-right: auto;
             padding: 1rem 1.5rem;
@@ -89,23 +89,26 @@
             color: white;
             z-index: 1000;
             opacity: 0;
-            transition: opacity 0.5s ease-in-out;
-            max-width: 320px; /* Leggermente aumentato per leggibilità */
+            transition: opacity 0.5s ease-in-out, transform 0.3s ease-in-out;
+            max-width: 350px; /* Aumentato per fare spazio al bottone copia */
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transform: translateY(20px);
         }
         @media (min-width: 640px) { /* sm breakpoint di Tailwind */
             .toast {
-                left: auto; /* Ripristina allineamento a destra su schermi più grandi */
+                left: auto; 
+                max-width: 400px;
             }
         }
         .toast.show {
             opacity: 1;
+            transform: translateY(0);
         }
         .toast-success {
-            background-color: #333; /* Grigio scuro/nero */
+            background-color: #333; 
         }
         .toast-error {
-            background-color: #dc3545; /* Rosso */
+            background-color: #dc3545; 
         }
         .admin-modal-bg {
             background-color: rgba(0,0,0,0.7);
@@ -120,7 +123,6 @@
             background-color: #ffc107;
             color: #212529;
         }
-        /* Nascondi frecce per input number */
         input[type=number]::-webkit-inner-spin-button,
         input[type=number]::-webkit-outer-spin-button {
             -webkit-appearance: none;
@@ -131,7 +133,10 @@
         }
     </style>
 </head>
-<body class="min-h-screen p-4 sm:p-6 md:p-8"> <div id="app" class="max-w-4xl mx-auto"> <header class="text-center mb-6 md:mb-8">
+<body class="min-h-screen p-4 sm:p-6 md:p-8"> 
+
+    <div id="app" class="max-w-4xl mx-auto"> 
+        <header class="text-center mb-6 md:mb-8">
             <div class="text-xl sm:text-2xl font-bold mb-1 sm:mb-2">A.R. AUTO SNC CAR PARTS</div>
             <h1 class="text-2xl sm:text-3xl font-bold text-white">A.R. AUTO - Delivery Manager</h1>
             <p class="text-xs sm:text-sm text-gray-400 mb-2">Prodotto da Federico Battistella</p>
@@ -150,7 +155,9 @@
                 </div>
                 <div id="driverDisplayContainer" class="hidden items-center">
                     <i class="fas fa-user mr-3 text-xl"></i>
-                    <span id="currentDriverName" class="text-lg font-semibold break-all"></span> <button id="editDriverBtn" class="btn btn-secondary ml-auto btn-small"><i class="fas fa-edit"></i> Modifica</button> </div>
+                    <span id="currentDriverName" class="text-lg font-semibold break-all"></span> 
+                    <button id="editDriverBtn" class="btn btn-secondary ml-auto btn-small"><i class="fas fa-edit"></i> Modifica</button> 
+                </div>
             </section>
 
             <div id="activeRoundWarning" class="card bg-yellow-500 text-yellow-900 hidden mb-6 p-3 sm:p-4 flex items-center text-sm sm:text-base">
@@ -161,7 +168,7 @@
             <section id="customerInputSection" class="card">
                 <h2 class="text-lg sm:text-xl font-semibold mb-4 flex items-center"><i class="fas fa-users mr-2"></i>Inserimento Clienti</h2>
                 <div id="customerListContainer" class="space-y-3 mb-4">
-                    </div>
+                </div>
                 <div class="flex flex-col sm:flex-row gap-3">
                     <button id="addCustomerBtn" class="btn btn-secondary w-full sm:w-auto order-2 sm:order-1"><i class="fas fa-plus"></i> Aggiungi Cliente</button>
                     <button id="startRoundBtn" class="btn btn-primary w-full sm:w-auto order-1 sm:order-2 flex-grow"><i class="fas fa-play"></i> Inizia Giro</button>
@@ -176,7 +183,7 @@
                 <div class="mb-3">
                     <h3 class="font-medium mb-1 text-sm sm:text-base">Clienti da servire:</h3>
                     <ul id="activeRoundCustomerList" class="list-disc list-inside pl-2 space-y-1 text-sm sm:text-base">
-                        </ul>
+                    </ul>
                 </div>
                 <div class="space-y-1 text-xs sm:text-sm">
                     <p><i class="fas fa-calendar-alt fa-fw mr-2"></i>Iniziato il: <span id="activeRoundStartTime"></span></p>
@@ -206,7 +213,7 @@
                     <button id="downloadReportBtn" class="btn btn-neutral text-sm w-full sm:w-auto"><i class="fas fa-file-download mr-2"></i>Scarica Report JSON</button>
                 </div>
                 <div id="deliveryHistoryList" class="space-y-4">
-                    </div>
+                </div>
                 <div id="noHistoryMessage" class="text-center py-6 hidden">
                     <i class="fas fa-box-open fa-3x text-gray-500 mb-3"></i>
                     <p class="text-gray-400 text-sm sm:text-base">Nessuna consegna registrata.</p>
@@ -282,7 +289,8 @@
     </div>
 
     <div id="adminLoginModal" class="fixed inset-0 admin-modal-bg flex items-center justify-center p-4 hidden z-50">
-        <div class="card max-w-xs sm:max-w-sm w-full"> <h2 class="text-lg sm:text-xl font-semibold mb-4 text-center">Accesso Admin</h2>
+        <div class="card max-w-xs sm:max-w-sm w-full"> 
+            <h2 class="text-lg sm:text-xl font-semibold mb-4 text-center">Accesso Admin</h2>
             <p class="text-xs sm:text-sm text-gray-300 mb-3 text-center">Inserisci la password per accedere.</p>
             <label for="adminPasswordInput" class="block text-sm font-medium mb-1">Password</label>
             <input type="password" id="adminPasswordInput" class="input-field mb-4 text-sm" placeholder="Inserisci la password">
@@ -297,10 +305,7 @@
     <div id="toastContainer"></div>
 
 <script>
-    // COMMENTO: Il design è mobile-first. Le classi Tailwind senza prefissi (es. p-4, w-full)
-    // si applicano a tutti gli schermi. I prefissi (sm:, md:, lg:) sovrascrivono per schermi più grandi.
-
-    // Elementi DOM (nessuna modifica qui)
+    // Elementi DOM 
     const driverSection = document.getElementById('driverSection');
     const driverInputContainer = document.getElementById('driverInputContainer');
     const driverNameInput = document.getElementById('driverNameInput');
@@ -329,7 +334,6 @@
     const statsTodayCustomers = document.getElementById('statsTodayCustomers');
     const statsTodayTotalTime = document.getElementById('statsTodayTotalTime');
     const statsTodayAvgTimePerRound = document.getElementById('statsTodayAvgTimePerRound');
-
 
     const historySection = document.getElementById('historySection');
     const downloadReportBtn = document.getElementById('downloadReportBtn');
@@ -364,7 +368,6 @@
     const adminDriverPerformanceList = document.getElementById('adminDriverPerformanceList');
     const adminNoDriverData = document.getElementById('adminNoDriverData');
 
-
     const WHATSAPP_NUMBER = '393939393799';
     const ADMIN_PASSWORD = 'admin'; 
 
@@ -374,7 +377,7 @@
     let deliveryHistory = [];
     let activeRoundInterval;
 
-    // Funzioni Helper (invariate, ma efficaci su mobile)
+    // Funzioni Helper per Toast
     function showToast(message, type = 'success') {
         const toastContainer = document.getElementById('toastContainer');
         const toast = document.createElement('div');
@@ -389,6 +392,104 @@
             setTimeout(() => toast.remove(), 500);
         }, 3000);
     }
+    
+    // NUOVA FUNZIONE: Toast interattivo con pulsante Copia
+    function showInteractiveToast(mainMessage, copyableMessage, type = 'success') {
+        const toastContainer = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        // Aggiungo flex e items-center per allineare testo e bottone
+        toast.className = `toast ${type === 'success' ? 'toast-success' : 'toast-error'} flex flex-col sm:flex-row items-center gap-2 sm:gap-3`;
+
+        const messageP = document.createElement('p');
+        messageP.textContent = mainMessage;
+        messageP.className = 'flex-grow text-sm text-left'; // flex-grow per occupare spazio, text-left per mobile
+
+        const copyBtn = document.createElement('button');
+        copyBtn.innerHTML = '<i class="fas fa-copy mr-1"></i> Copia Messaggio';
+        // btn-small per dimensioni ridotte, w-full su mobile, sm:w-auto su schermi più grandi
+        copyBtn.className = 'btn btn-secondary btn-small flex-shrink-0 w-full sm:w-auto'; 
+        copyBtn.onclick = async () => {
+            const success = await copyTextToClipboard(copyableMessage);
+            if (success) {
+                copyBtn.innerHTML = '<i class="fas fa-check mr-1"></i> Copiato!';
+                copyBtn.disabled = true;
+                setTimeout(() => {
+                    // Verifica se il toast esiste ancora prima di resettare il bottone
+                    if (toast.parentElement) { 
+                         copyBtn.innerHTML = '<i class="fas fa-copy mr-1"></i> Copia Messaggio';
+                         copyBtn.disabled = false;
+                    }
+                }, 2500);
+            } else {
+                copyBtn.innerHTML = '<i class="fas fa-times mr-1"></i> Copia Fallita';
+                 setTimeout(() => { // Resetta il bottone anche in caso di fallimento
+                    if (toast.parentElement) {
+                         copyBtn.innerHTML = '<i class="fas fa-copy mr-1"></i> Copia Messaggio';
+                         copyBtn.disabled = false;
+                    }
+                }, 2500);
+            }
+        };
+        
+        toast.appendChild(messageP);
+        toast.appendChild(copyBtn);
+        toastContainer.appendChild(toast);
+
+        setTimeout(() => toast.classList.add('show'), 100);
+
+        // Durata maggiore per dare tempo di interagire
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 500);
+        }, 7000); 
+    }
+
+    // NUOVA FUNZIONE: Copia testo negli appunti (migliorata)
+    async function copyTextToClipboard(text) {
+        try {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                await navigator.clipboard.writeText(text);
+                // Non mostrare toast qui, il feedback è sul bottone
+                return true;
+            } else {
+                // Fallback per browser più vecchi o contesti non sicuri
+                return fallbackCopyTextToClipboard(text);
+            }
+        } catch (err) {
+            console.error('Errore nel copiare il testo con navigator.clipboard: ', err);
+            // Tenta il fallback se navigator.clipboard fallisce
+            return fallbackCopyTextToClipboard(text);
+        }
+    }
+
+    function fallbackCopyTextToClipboard(text) {
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        // Stili per rendere l'area di testo invisibile e non interferire con il layout
+        textArea.style.position = "fixed"; 
+        textArea.style.top = "-9999px";
+        textArea.style.left = "-9999px";
+        textArea.style.width = "1px"; // Minima dimensione
+        textArea.style.height = "1px";
+        textArea.style.opacity = "0";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        try {
+            const successful = document.execCommand('copy');
+            if (!successful) {
+                showToast('Impossibile copiare il messaggio.', 'error');
+            }
+            document.body.removeChild(textArea);
+            return successful;
+        } catch (err) {
+            console.error('Fallback: Errore nel copiare il testo con document.execCommand: ', err);
+            showToast('Impossibile copiare il messaggio.', 'error');
+            document.body.removeChild(textArea);
+            return false;
+        }
+    }
+
 
     function formatDate(dateString) {
         if (!dateString) return 'N/A';
@@ -419,7 +520,6 @@
         return `${hours} ore ${minutes} min`;
     }
 
-    // Gestione Dati (localStorage) - invariata
     function loadData() {
         currentDriver = localStorage.getItem('deliveryManager_driverName') || '';
         const activeRoundData = localStorage.getItem('deliveryManager_activeRound');
@@ -447,7 +547,6 @@
         localStorage.setItem('deliveryManager_deliveryHistory', JSON.stringify(deliveryHistory));
     }
 
-    // UI Fattorino - invariata
     function updateDriverUI() {
         if (currentDriver) {
             driverInputContainer.classList.add('hidden');
@@ -458,7 +557,7 @@
             driverInputContainer.classList.remove('hidden');
             driverDisplayContainer.classList.add('hidden');
             driverDisplayContainer.classList.remove('flex');
-            driverNameInput.value = ''; // Pulisce l'input se non c'è fattorino
+            driverNameInput.value = ''; 
         }
     }
 
@@ -469,7 +568,6 @@
             updateDriverUI();
             saveData();
             showToast('Nome fattorino salvato!');
-            // driverNameInput.value = ''; // Non pulire qui, updateDriverUI lo gestisce
         } else {
             showToast('Inserisci un nome per il fattorino.', 'error');
         }
@@ -483,16 +581,14 @@
         driverNameInput.focus();
     });
 
-    // UI Clienti
     function renderCustomerInputs() {
         customerListContainer.innerHTML = '';
         if (customers.length === 0 && !activeRound) { 
-             customers = ["", ""]; // Default a 2 clienti se lista vuota e nessun giro attivo
+             customers = ["", ""]; 
         }
         customers.forEach((customerName, index) => {
             const div = document.createElement('div');
-            div.className = 'flex items-center gap-2'; // gap-2 per un po' di spazio
-            // MODIFICA: Utilizzo di classi p-2 e text-sm per il bottone rimuovi, e aria-label
+            div.className = 'flex items-center gap-2'; 
             div.innerHTML = `
                 <i class="fas fa-user text-gray-400 text-sm sm:text-base"></i>
                 <input type="text" class="input-field customer-input flex-grow text-sm sm:text-base" placeholder="Cliente ${index + 1}" value="${customerName}" data-index="${index}">
@@ -505,13 +601,19 @@
             input.addEventListener('change', (e) => {
                 customers[parseInt(e.target.dataset.index)] = e.target.value.trim();
             });
-             input.addEventListener('input', (e) => { // Salva anche mentre si digita
+             input.addEventListener('input', (e) => { 
                 customers[parseInt(e.target.dataset.index)] = e.target.value;
             });
         });
         document.querySelectorAll('.remove-customer-btn').forEach(button => {
             button.addEventListener('click', (e) => {
-                const indexToRemove = parseInt(e.currentTarget.dataset.index);
+                // Prevenire il comportamento di default se il bottone è dentro un form (non è il caso qui, ma buona pratica)
+                e.preventDefault(); 
+                // Assicurarsi che l'elemento cliccato sia il bottone stesso o un suo figlio (icona)
+                const targetButton = e.target.closest('.remove-customer-btn');
+                if (!targetButton) return;
+
+                const indexToRemove = parseInt(targetButton.dataset.index);
                 customers.splice(indexToRemove, 1);
                 if (customers.length === 0) customers.push(""); 
                 renderCustomerInputs();
@@ -522,18 +624,16 @@
     addCustomerBtn.addEventListener('click', () => {
         customers.push('');
         renderCustomerInputs();
-        // Focus sull'ultimo input aggiunto
         const allCustomerInputs = customerListContainer.querySelectorAll('.customer-input');
         if (allCustomerInputs.length > 0) {
             allCustomerInputs[allCustomerInputs.length - 1].focus();
         }
     });
 
-    // UI Giro Attivo - invariata
     function updateActiveRoundUI() {
         if (activeRound) {
             activeRoundWarning.classList.remove('hidden');
-            customerInputSection.classList.add('hidden'); // Nasconde sezione input clienti
+            customerInputSection.classList.add('hidden'); 
             activeRoundSection.classList.remove('hidden');
 
             activeRoundDriverName.textContent = activeRound.driverName;
@@ -556,7 +656,7 @@
 
         } else {
             activeRoundWarning.classList.add('hidden');
-            customerInputSection.classList.remove('hidden'); // Mostra sezione input clienti
+            customerInputSection.classList.remove('hidden'); 
             activeRoundSection.classList.add('hidden');
             clearInterval(activeRoundInterval);
         }
@@ -571,7 +671,6 @@
         const validCustomers = customers.map(c => c.trim()).filter(c => c !== '');
         if (validCustomers.length === 0) {
             showToast('Inserisci almeno un cliente.', 'error');
-            // Focus sul primo input cliente vuoto o sul primo se tutti vuoti
             const firstEmptyCustomerInput = Array.from(customerListContainer.querySelectorAll('.customer-input')).find(input => !input.value.trim());
             if (firstEmptyCustomerInput) {
                 firstEmptyCustomerInput.focus();
@@ -596,15 +695,21 @@
         updateDailyStats(); 
 
         const startTimeFormatted = formatDate(activeRound.startTime);
-        let message = `INIZIO GIRO CONSEGNE\n`;
-        message += `Fattorino: ${activeRound.driverName}\n`;
-        message += `Data e Ora Partenza: ${startTimeFormatted}\n`;
-        message += `Clienti da servire:\n`;
-        validCustomers.forEach(c => message += `- ${c}\n`);
+        let messageContent = `INIZIO GIRO CONSEGNE\n`; // Rinomino la variabile per chiarezza
+        messageContent += `Fattorino: ${activeRound.driverName}\n`;
+        messageContent += `Data e Ora Partenza: ${startTimeFormatted}\n`;
+        messageContent += `Clienti da servire:\n`;
+        validCustomers.forEach(c => messageContent += `- ${c}\n`);
+        messageContent = messageContent.trim(); // Rimuovi spazi extra alla fine
         
-        const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message.trim())}`;
+        const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(messageContent)}`;
         window.open(whatsappUrl, '_blank');
-        showToast('Giro consegne iniziato!');
+        
+        // MODIFICA: Usa showInteractiveToast
+        showInteractiveToast(
+            'Giro iniziato! WhatsApp si apre... Se il messaggio non si compila, copialo qui.',
+            messageContent 
+        );
     });
 
     endRoundBtn.addEventListener('click', () => {
@@ -621,13 +726,14 @@
         const startTimeFormatted = formatDate(activeRound.startTime);
         const endTimeFormatted = formatDate(activeRound.endTime);
         
-        let message = `RIEPILOGO GIRO CONSEGNE\n`;
-        message += `Fattorino: ${activeRound.driverName}\n`;
-        message += `Data e Ora Partenza: ${startTimeFormatted}\n`;
-        message += `Data e Ora Fine: ${endTimeFormatted}\n`;
-        message += `Durata Totale: ${activeRound.duration}\n`;
-        message += `Clienti serviti:\n`;
-        activeRound.customers.forEach(c => message += `- ${c}\n`);
+        let messageContent = `RIEPILOGO GIRO CONSEGNE\n`; // Rinomino la variabile
+        messageContent += `Fattorino: ${activeRound.driverName}\n`;
+        messageContent += `Data e Ora Partenza: ${startTimeFormatted}\n`;
+        messageContent += `Data e Ora Fine: ${endTimeFormatted}\n`;
+        messageContent += `Durata Totale: ${activeRound.duration}\n`;
+        messageContent += `Clienti serviti:\n`;
+        activeRound.customers.forEach(c => messageContent += `- ${c}\n`);
+        messageContent = messageContent.trim();
 
         activeRound = null;
         updateActiveRoundUI();
@@ -635,12 +741,16 @@
         saveData();
         updateDailyStats();
         
-        const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message.trim())}`;
+        const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(messageContent)}`;
         window.open(whatsappUrl, '_blank');
-        showToast('Giro concluso con successo!');
+
+        // MODIFICA: Usa showInteractiveToast
+        showInteractiveToast(
+            'Giro concluso! WhatsApp si apre... Se il riepilogo non si compila, copialo qui.',
+            messageContent
+        );
     });
 
-    // UI Cronologia - invariata
     function renderHistoryList() {
         deliveryHistoryList.innerHTML = '';
         if (deliveryHistory.length === 0) {
@@ -688,7 +798,6 @@
         showToast('Report JSON scaricato.');
     });
 
-    // UI Statistiche Giornaliere - invariata
     function updateDailyStats() {
         const today = new Date().toISOString().slice(0, 10);
         const todayRounds = deliveryHistory.filter(round => round.startTime.startsWith(today) && round.status === 'concluso');
@@ -707,7 +816,7 @@
         statsTodayCustomers.textContent = totalCustomersToday;
 
         const totalTimeMsToday = todayRounds.reduce((sum, round) => {
-            if (round.endTime && round.startTime) { // Assicura che esistano entrambi
+            if (round.endTime && round.startTime) { 
                  return sum + (new Date(round.endTime) - new Date(round.startTime));
             }
             return sum;
@@ -719,7 +828,6 @@
         statsTodayAvgTimePerRound.textContent = `${avgTimePerRoundMinutes} min`;
     }
 
-    // Admin Panel Logic - invariata
     openAdminModalLink.addEventListener('click', (e) => {
         e.preventDefault();
         adminLoginModal.classList.remove('hidden');
@@ -794,7 +902,7 @@
     }
 
     function loadAdminData() {
-        const uniqueDrivers = [...new Set(deliveryHistory.map(r => r.driverName))].filter(Boolean); // Filtra nomi vuoti
+        const uniqueDrivers = [...new Set(deliveryHistory.map(r => r.driverName))].filter(Boolean); 
         adminDriverFilter.innerHTML = '<option value="">Tutti i fattorini</option>';
         uniqueDrivers.forEach(driver => {
             const option = document.createElement('option');
@@ -864,7 +972,7 @@
         adminDriverPerformanceList.innerHTML = '';
         const drivers = {}; 
 
-        deliveryHistory.filter(r => r.status === 'concluso' && r.driverName).forEach(round => { // Aggiunto r.driverName per sicurezza
+        deliveryHistory.filter(r => r.status === 'concluso' && r.driverName).forEach(round => { 
             if (!drivers[round.driverName]) {
                 drivers[round.driverName] = { rounds: 0, customers: 0, totalTimeMins: 0 };
             }
@@ -900,11 +1008,8 @@
         }
     }
 
-    // Inizializzazione
     document.addEventListener('DOMContentLoaded', () => {
         loadData();
-        // renderCustomerInputs(); // Già chiamato in loadData
-        // Assicura che ci siano i campi cliente iniziali se non c'è un giro attivo
         if (customers.length === 0 && !activeRound) {
             customers = ["", ""];
             renderCustomerInputs();
