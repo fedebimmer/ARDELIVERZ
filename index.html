@@ -1164,9 +1164,13 @@
             return;
         }
 
-        let csvContent = "ID Giro;Fattorino;Ora Inizio;Ora Fine;Durata;Clienti\n";
+        let csvContent = "ID Giro;Fattorino;Ora Inizio;Ora Fine;Durata;Clienti\n"; // Header CSV
         dataToExport.forEach(round => {
-            const clientiPerCsv = round.customers.join(", "); // Clienti separati da virgola
+            // Assicura che i nomi dei clienti che potrebbero contenere virgole siano gestiti correttamente (anche se qui usiamo ';' come delimitatore principale)
+            // Per CSV standard, se un campo contiene il delimitatore, virgole o newline, dovrebbe essere tra virgolette doppie.
+            // E le virgolette doppie all'interno del campo dovrebbero essere raddoppiate.
+            // Qui, per semplicità, mettiamo tra virgolette il campo clienti.
+            const clientiPerCsv = round.customers.join(", "); // Unisce i clienti con una virgola e uno spazio
             csvContent += `${round.id};${round.driverName};${formatDate(round.startTime)};${formatDate(round.endTime)};${round.duration};"${clientiPerCsv}"\n`;
         });
 
