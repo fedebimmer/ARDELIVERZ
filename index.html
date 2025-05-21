@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>A.R. AUTO - Delivery Manager</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com"></script> <!-- NOTA: Questo era all'inizio del body nel codice fornito, l'ho lasciato lì, ma spesso Tailwind si usa come CSS compilato -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.1/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script> <!-- Aggiunto defer -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.1/jspdf.plugin.autotable.min.js" defer></script> <!-- Aggiunto defer -->
 
     <style>
         :root {
@@ -107,7 +107,7 @@
             position: fixed;
             bottom: 20px;
             right: 20px;
-            left: 20px; 
+            left: 20px;
             margin-left: auto;
             margin-right: auto;
             padding: 1rem 1.5rem;
@@ -136,7 +136,7 @@
             cursor: grab;
             display: flex;
             align-items: center;
-            background-color: var(--input-bg); 
+            background-color: var(--input-bg);
         }
         .customer-draggable-item:active { cursor: grabbing; }
         .customer-draggable-item.dragging { opacity: 0.5; background-color: #6c757d; }
@@ -144,17 +144,17 @@
 
         /* Stili per tema chiaro/scuro specifici */
         body.light-theme #openAdminModalLink { color: var(--accent-blue); }
-        body.light-theme #openAdminModalLink:hover { color: #2563eb; } 
+        body.light-theme #openAdminModalLink:hover { color: #2563eb; }
         body.light-theme .text-blue-400 { color: var(--accent-blue); }
         body.light-theme .hover\:text-blue-300:hover { color: #2563eb; }
-        body.light-theme .bg-yellow-500 { background-color: #fef9c3; color: #713f12; border: 1px solid #fde047; } 
+        body.light-theme .bg-yellow-500 { background-color: #fef9c3; color: #713f12; border: 1px solid #fde047; }
         body.light-theme .text-yellow-900 { color: #713f12; }
-        body.light-theme .badge-warning { background-color: #fde047; color: #713f12; } 
-        body.light-theme .bg-gray-500 { background-color: #e5e7eb; } 
-        body.light-theme .bg-gray-600 { background-color: #f3f4f6; } 
-        body.light-theme .text-gray-300 { color: #6b7280; } 
-        body.light-theme .text-gray-400 { color: #9ca3af; } 
-        body.light-theme .text-gray-500 { color: #6b7280; } 
+        body.light-theme .badge-warning { background-color: #fde047; color: #713f12; }
+        body.light-theme .bg-gray-500 { background-color: #e5e7eb; }
+        body.light-theme .bg-gray-600 { background-color: #f3f4f6; }
+        body.light-theme .text-gray-300 { color: #6b7280; }
+        body.light-theme .text-gray-400 { color: #9ca3af; }
+        body.light-theme .text-gray-500 { color: #6b7280; }
         
         .file-input-label {
             border: 1px solid var(--border-color);
@@ -168,12 +168,15 @@
         .file-input-label:hover {
             background-color: var(--border-color);
         }
-        #importFile::file-selector-button { display: none; } 
+        #importFile::file-selector-button { display: none; }
     </style>
 </head>
-<body class="min-h-screen p-4 sm:p-6 md:p-8"> 
+<body class="min-h-screen p-4 sm:p-6 md:p-8">
+    <!-- Lo script Tailwind CDN era qui -->
+    <!-- <script src="https://cdn.tailwindcss.com"></script> -->
+    <!-- Per produzione, è meglio usare un file CSS compilato da Tailwind -->
 
-    <div id="app" class="max-w-4xl mx-auto"> 
+    <div id="app" class="max-w-4xl mx-auto">
         <header class="text-center mb-6 md:mb-8">
             <div class="text-xl sm:text-2xl font-bold mb-1 sm:mb-2">A.R. AUTO SNC CAR PARTS</div>
             <h1 class="text-2xl sm:text-3xl font-bold">A.R. AUTO - Delivery Manager</h1>
@@ -193,8 +196,8 @@
                 </div>
                 <div id="driverDisplayContainer" class="hidden items-center">
                     <i class="fas fa-user mr-3 text-xl"></i>
-                    <span id="currentDriverName" class="text-lg font-semibold break-all"></span> 
-                    <button id="editDriverBtn" class="btn btn-secondary ml-auto btn-small"><i class="fas fa-edit"></i> Modifica</button> 
+                    <span id="currentDriverName" class="text-lg font-semibold break-all"></span>
+                    <button id="editDriverBtn" class="btn btn-secondary ml-auto btn-small"><i class="fas fa-edit"></i> Modifica</button>
                 </div>
             </section>
 
@@ -366,7 +369,7 @@
     </div>
 
     <div id="adminLoginModal" class="fixed inset-0 admin-modal-bg flex items-center justify-center p-4 hidden z-50">
-        <div class="card max-w-xs sm:max-w-sm w-full"> 
+        <div class="card max-w-xs sm:max-w-sm w-full">
             <h2 class="text-lg sm:text-xl font-semibold mb-4 text-center">Accesso Admin</h2>
             <p class="text-xs sm:text-sm text-gray-300 mb-3 text-center">Inserisci la password per accedere.</p>
             <label for="adminPasswordInput" class="block text-sm font-medium mb-1">Password</label>
@@ -382,6 +385,7 @@
     <div id="toastContainer"></div>
 
 <script>
+document.addEventListener('DOMContentLoaded', () => { // AVVOLGE TUTTO LO SCRIPT
     // Elementi DOM (aggiunti nuovi elementi)
     const settingsSection = document.getElementById('settingsSection');
     const themeToggleBtn = document.getElementById('themeToggleBtn');
@@ -457,7 +461,7 @@
     const adminNoDriverData = document.getElementById('adminNoDriverData');
 
     const WHATSAPP_NUMBER = '393939393799';
-    const ADMIN_PASSWORD = 'admin'; 
+    const ADMIN_PASSWORD = 'admin';
 
     let currentDriver = '';
     let customers = []; // Clienti per il prossimo giro
@@ -472,6 +476,10 @@
     // --- FUNZIONI HELPER ---
     function showToast(message, type = 'success') {
         const toastContainer = document.getElementById('toastContainer');
+        if (!toastContainer) { // Aggiunto controllo per sicurezza
+            console.error("Toast container not found!");
+            return;
+        }
         const toast = document.createElement('div');
         toast.className = `toast ${type === 'success' ? 'toast-success' : 'toast-error'}`;
         toast.textContent = message;
@@ -485,6 +493,10 @@
     
     function showInteractiveToast(mainMessage, copyableMessage, type = 'success') {
         const toastContainer = document.getElementById('toastContainer');
+        if (!toastContainer) {
+            console.error("Toast container not found!");
+            return;
+        }
         const toast = document.createElement('div');
         toast.className = `toast ${type === 'success' ? 'toast-success' : 'toast-error'} flex flex-col sm:flex-row items-center gap-2 sm:gap-3`;
         const messageP = document.createElement('p');
@@ -492,21 +504,21 @@
         messageP.className = 'flex-grow text-sm text-left';
         const copyBtn = document.createElement('button');
         copyBtn.innerHTML = '<i class="fas fa-copy mr-1"></i> Copia Messaggio';
-        copyBtn.className = 'btn btn-secondary btn-small flex-shrink-0 w-full sm:w-auto'; 
+        copyBtn.className = 'btn btn-secondary btn-small flex-shrink-0 w-full sm:w-auto';
         copyBtn.onclick = async () => {
             const success = await copyTextToClipboard(copyableMessage);
             if (success) {
                 copyBtn.innerHTML = '<i class="fas fa-check mr-1"></i> Copiato!';
                 copyBtn.disabled = true;
                 setTimeout(() => {
-                    if (toast.parentElement) { 
+                    if (toast.parentElement) {
                          copyBtn.innerHTML = '<i class="fas fa-copy mr-1"></i> Copia Messaggio';
                          copyBtn.disabled = false;
                     }
                 }, 2500);
             } else {
                 copyBtn.innerHTML = '<i class="fas fa-times mr-1"></i> Copia Fallita';
-                 setTimeout(() => { 
+                 setTimeout(() => {
                     if (toast.parentElement) {
                          copyBtn.innerHTML = '<i class="fas fa-copy mr-1"></i> Copia Messaggio';
                          copyBtn.disabled = false;
@@ -521,7 +533,7 @@
         setTimeout(() => {
             toast.classList.remove('show');
             setTimeout(() => toast.remove(), 500);
-        }, 7000); 
+        }, 7000);
     }
 
     async function copyTextToClipboard(text) {
@@ -541,10 +553,10 @@
     function fallbackCopyTextToClipboard(text) {
         const textArea = document.createElement("textarea");
         textArea.value = text;
-        textArea.style.position = "fixed"; 
+        textArea.style.position = "fixed";
         textArea.style.top = "-9999px";
         textArea.style.left = "-9999px";
-        textArea.style.width = "1px"; 
+        textArea.style.width = "1px";
         textArea.style.height = "1px";
         textArea.style.opacity = "0";
         document.body.appendChild(textArea);
@@ -599,9 +611,9 @@
         deliveryHistory = historyData ? JSON.parse(historyData) : [];
         
         const customersData = localStorage.getItem('deliveryManager_customers');
-        customers = customersData ? JSON.parse(customersData) : []; 
+        customers = customersData ? JSON.parse(customersData) : [];
 
-        loadTheme(); 
+        loadTheme();
         updateUI();
     }
 
@@ -616,13 +628,13 @@
         localStorage.setItem('deliveryManager_customers', JSON.stringify(customers));
     }
     
-    function updateUI() { 
+    function updateUI() {
         updateDriverUI();
         updateActiveRoundUI();
-        renderCustomerInputs(); 
+        renderCustomerInputs();
         renderHistoryList();
         updateDailyStats();
-        if (!adminPanel.classList.contains('hidden')) {
+        if (adminPanel && !adminPanel.classList.contains('hidden')) { // Aggiunto controllo per adminPanel
             loadAdminData();
         }
     }
@@ -632,10 +644,10 @@
     function applyTheme(theme) {
         if (theme === 'light') {
             document.body.classList.add('light-theme');
-            themeToggleBtn.innerHTML = '<i class="fas fa-moon mr-2"></i> Tema Scuro';
+            if (themeToggleBtn) themeToggleBtn.innerHTML = '<i class="fas fa-moon mr-2"></i> Tema Scuro';
         } else {
             document.body.classList.remove('light-theme');
-            themeToggleBtn.innerHTML = '<i class="fas fa-sun mr-2"></i> Tema Chiaro';
+            if (themeToggleBtn) themeToggleBtn.innerHTML = '<i class="fas fa-sun mr-2"></i> Tema Chiaro';
         }
     }
 
@@ -650,15 +662,15 @@
         const savedTheme = localStorage.getItem('deliveryManager_theme') || 'dark';
         applyTheme(savedTheme);
     }
-    themeToggleBtn.addEventListener('click', toggleTheme);
+    if (themeToggleBtn) themeToggleBtn.addEventListener('click', toggleTheme);
 
     // --- BACKUP E RIPRISTINO ---
-    exportAllDataBtn.addEventListener('click', () => {
+    if (exportAllDataBtn) exportAllDataBtn.addEventListener('click', () => {
         const dataToExport = {
             driverName: currentDriver,
             activeRound: activeRound,
             deliveryHistory: deliveryHistory,
-            customers: customers 
+            customers: customers
         };
         const dataStr = JSON.stringify(dataToExport, null, 2);
         const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
@@ -673,28 +685,28 @@
     });
 
     let importedFileContent = null;
-    importFileInput.addEventListener('change', (event) => {
+    if (importFileInput) importFileInput.addEventListener('change', (event) => {
         const file = event.target.files[0];
         if (file) {
             const reader = new FileReader();
             reader.onload = (e) => {
                 importedFileContent = e.target.result;
-                importAllDataBtn.disabled = false;
+                if (importAllDataBtn) importAllDataBtn.disabled = false;
                 showToast(`File "${file.name}" pronto per l'importazione.`, 'success');
             };
             reader.onerror = () => {
                 showToast('Errore nella lettura del file.', 'error');
                 importedFileContent = null;
-                importAllDataBtn.disabled = true;
+                if (importAllDataBtn) importAllDataBtn.disabled = true;
             }
             reader.readAsText(file);
         } else {
             importedFileContent = null;
-            importAllDataBtn.disabled = true;
+            if (importAllDataBtn) importAllDataBtn.disabled = true;
         }
     });
 
-    importAllDataBtn.addEventListener('click', () => {
+    if (importAllDataBtn) importAllDataBtn.addEventListener('click', () => {
         if (!importedFileContent) {
             showToast('Nessun file selezionato per l'importazione.', 'error');
             return;
@@ -702,7 +714,7 @@
         try {
             const importedData = JSON.parse(importedFileContent);
             if (typeof importedData.driverName !== 'undefined' &&
-                typeof importedData.activeRound !== 'undefined' && 
+                typeof importedData.activeRound !== 'undefined' &&
                 Array.isArray(importedData.deliveryHistory) &&
                 Array.isArray(importedData.customers) ) {
 
@@ -712,7 +724,7 @@
                 customers = importedData.customers || [];
 
                 saveAllData();
-                loadAllData(); 
+                loadAllData();
                 showToast('Dati importati con successo!');
             } else {
                 showToast('File di backup non valido o corrotto.', 'error');
@@ -722,13 +734,14 @@
             showToast('Errore durante l\'importazione dei dati. Assicurati che il file sia JSON valido.', 'error');
         }
         importedFileContent = null;
-        importAllDataBtn.disabled = true;
-        importFileInput.value = ''; 
+        if (importAllDataBtn) importAllDataBtn.disabled = true;
+        if (importFileInput) importFileInput.value = '';
     });
 
 
     // --- UI FATTOINO ---
     function updateDriverUI() {
+        if (!driverInputContainer || !driverDisplayContainer || !currentDriverName || !driverNameInput) return; // Controllo esistenza elementi
         if (currentDriver) {
             driverInputContainer.classList.add('hidden');
             driverDisplayContainer.classList.remove('hidden');
@@ -738,10 +751,11 @@
             driverInputContainer.classList.remove('hidden');
             driverDisplayContainer.classList.add('hidden');
             driverDisplayContainer.classList.remove('flex');
-            driverNameInput.value = ''; 
+            driverNameInput.value = '';
         }
     }
-    saveDriverBtn.addEventListener('click', () => {
+    if (saveDriverBtn) saveDriverBtn.addEventListener('click', () => {
+        if (!driverNameInput) return;
         const name = driverNameInput.value.trim();
         if (name) {
             currentDriver = name;
@@ -752,7 +766,8 @@
             showToast('Inserisci un nome per il fattorino.', 'error');
         }
     });
-    editDriverBtn.addEventListener('click', () => {
+    if (editDriverBtn) editDriverBtn.addEventListener('click', () => {
+        if (!driverNameInput || !driverInputContainer || !driverDisplayContainer) return;
         driverNameInput.value = currentDriver;
         driverInputContainer.classList.remove('hidden');
         driverDisplayContainer.classList.add('hidden');
@@ -762,9 +777,10 @@
 
     // --- UI CLIENTI (con Drag & Drop) ---
     function renderCustomerInputs() {
+        if (!customerListContainer) return;
         customerListContainer.innerHTML = '';
-        if (customers.length === 0 && !activeRound) { 
-             customers = ["", ""]; 
+        if (customers.length === 0 && !activeRound) {
+             customers = ["", ""];
         }
         customers.forEach((customerName, index) => {
             const div = document.createElement('div');
@@ -787,22 +803,22 @@
         customerListContainer.addEventListener('drop', handleDrop);
         
         document.querySelectorAll('.customer-input').forEach(input => {
-            input.addEventListener('change', (e) => { 
+            input.addEventListener('change', (e) => {
                 customers[parseInt(e.target.dataset.index)] = e.target.value.trim();
-                saveAllData(); 
+                saveAllData();
             });
-             input.addEventListener('input', (e) => { 
+             input.addEventListener('input', (e) => {
                 customers[parseInt(e.target.dataset.index)] = e.target.value;
             });
         });
         document.querySelectorAll('.remove-customer-btn').forEach(button => {
             button.addEventListener('click', (e) => {
-                e.preventDefault(); 
+                e.preventDefault();
                 const targetButton = e.target.closest('.remove-customer-btn');
                 if (!targetButton) return;
                 const indexToRemove = parseInt(targetButton.dataset.index);
                 customers.splice(indexToRemove, 1);
-                if (customers.length === 0) customers.push(""); 
+                if (customers.length === 0) customers.push("");
                 renderCustomerInputs();
                 saveAllData();
             });
@@ -813,7 +829,7 @@
         draggedItem = e.target.closest('.customer-draggable-item');
         e.dataTransfer.effectAllowed = 'move';
         e.dataTransfer.setData('text/plain', draggedItem.dataset.index);
-        setTimeout(() => { 
+        setTimeout(() => {
             if(draggedItem) draggedItem.classList.add('dragging');
         }, 0);
     }
@@ -826,11 +842,8 @@
     }
 
     function handleDragOver(e) {
-        e.preventDefault(); 
+        e.preventDefault();
         e.dataTransfer.dropEffect = 'move';
-        const targetItem = e.target.closest('.customer-draggable-item');
-        if (targetItem && targetItem !== draggedItem) {
-        }
     }
 
     function handleDrop(e) {
@@ -850,11 +863,11 @@
         const [movedCustomer] = customers.splice(draggedIndex, 1);
         customers.splice(targetIndex, 0, movedCustomer);
 
-        renderCustomerInputs(); 
-        saveAllData(); 
+        renderCustomerInputs();
+        saveAllData();
     }
 
-    addCustomerBtn.addEventListener('click', () => {
+    if (addCustomerBtn) addCustomerBtn.addEventListener('click', () => {
         customers.push('');
         renderCustomerInputs();
         saveAllData();
@@ -866,16 +879,19 @@
 
     // --- UI GIRO ATTIVO (con modifica clienti) ---
     function updateActiveRoundUI() {
+        if (!activeRoundWarning || !customerInputSection || !activeRoundSection || !endRoundBtn ||
+            !activeRoundDriverName || !activeRoundStartTime || !activeRoundDuration ) return;
+
         if (activeRound) {
             activeRoundWarning.classList.remove('hidden');
-            customerInputSection.classList.add('hidden'); 
+            customerInputSection.classList.add('hidden');
             activeRoundSection.classList.remove('hidden');
-            endRoundBtn.disabled = isEditingActiveCustomers; 
+            endRoundBtn.disabled = isEditingActiveCustomers;
 
             activeRoundDriverName.textContent = activeRound.driverName;
             activeRoundStartTime.textContent = formatDate(activeRound.startTime);
             
-            renderActiveCustomerList(); 
+            renderActiveCustomerList();
 
             clearInterval(activeRoundInterval);
             activeRoundInterval = setInterval(() => {
@@ -887,16 +903,17 @@
 
         } else {
             activeRoundWarning.classList.add('hidden');
-            customerInputSection.classList.remove('hidden'); 
+            customerInputSection.classList.remove('hidden');
             activeRoundSection.classList.add('hidden');
             clearInterval(activeRoundInterval);
-            exitEditActiveCustomersMode(); 
+            exitEditActiveCustomersMode();
         }
     }
     
-    function renderActiveCustomerList() { 
+    function renderActiveCustomerList() {
+        if(!activeRoundCustomerList) return;
         activeRoundCustomerList.innerHTML = '';
-        if(activeRound && activeRound.customers) { 
+        if(activeRound && activeRound.customers) {
             activeRound.customers.forEach(customer => {
                 const li = document.createElement('li');
                 li.innerHTML = `<i class="fas fa-user-tag fa-fw mr-1 text-gray-300"></i> <span class="break-all">${customer}</span>`;
@@ -905,7 +922,8 @@
         }
     }
 
-    function renderActiveCustomerEditInputs() { 
+    function renderActiveCustomerEditInputs() {
+        if(!activeRoundCustomerEditContainer) return;
         activeRoundCustomerEditContainer.innerHTML = '';
         tempActiveCustomers.forEach((customerName, index) => {
             const div = document.createElement('div');
@@ -943,10 +961,12 @@
     }
     
     function enterEditActiveCustomersMode() {
+        if (!activeRoundCustomerList || !activeRoundCustomerEditContainer || !toggleEditActiveCustomersBtn ||
+            !saveActiveCustomerChangesBtn || !cancelActiveCustomerChangesBtn || !editActiveCustomersWarning || !endRoundBtn) return;
         isEditingActiveCustomers = true;
-        tempActiveCustomers = [...activeRound.customers]; 
-        activeRoundCustomerList.classList.add('hidden'); 
-        activeRoundCustomerEditContainer.classList.remove('hidden'); 
+        tempActiveCustomers = [...activeRound.customers];
+        activeRoundCustomerList.classList.add('hidden');
+        activeRoundCustomerEditContainer.classList.remove('hidden');
         renderActiveCustomerEditInputs();
 
         toggleEditActiveCustomersBtn.classList.add('hidden');
@@ -957,25 +977,27 @@
     }
 
     function exitEditActiveCustomersMode() {
+        if (!activeRoundCustomerList || !activeRoundCustomerEditContainer || !toggleEditActiveCustomersBtn ||
+            !saveActiveCustomerChangesBtn || !cancelActiveCustomerChangesBtn || !editActiveCustomersWarning || !endRoundBtn) return;
         isEditingActiveCustomers = false;
-        activeRoundCustomerList.classList.remove('hidden'); 
-        activeRoundCustomerEditContainer.classList.add('hidden'); 
-        activeRoundCustomerEditContainer.innerHTML = ''; 
+        activeRoundCustomerList.classList.remove('hidden');
+        activeRoundCustomerEditContainer.classList.add('hidden');
+        activeRoundCustomerEditContainer.innerHTML = '';
 
         toggleEditActiveCustomersBtn.classList.remove('hidden');
         saveActiveCustomerChangesBtn.classList.add('hidden');
         cancelActiveCustomerChangesBtn.classList.add('hidden');
         editActiveCustomersWarning.classList.add('hidden');
-        if (activeRound) endRoundBtn.disabled = false; 
+        if (activeRound) endRoundBtn.disabled = false;
     }
 
-    toggleEditActiveCustomersBtn.addEventListener('click', () => {
+    if (toggleEditActiveCustomersBtn) toggleEditActiveCustomersBtn.addEventListener('click', () => {
         if (activeRound) {
             enterEditActiveCustomersMode();
         }
     });
 
-    saveActiveCustomerChangesBtn.addEventListener('click', () => {
+    if (saveActiveCustomerChangesBtn) saveActiveCustomerChangesBtn.addEventListener('click', () => {
         if (activeRound) {
             const updatedCustomers = tempActiveCustomers.map(c => c.trim()).filter(c => c !== "");
             if (updatedCustomers.length === 0) {
@@ -984,30 +1006,32 @@
             }
             activeRound.customers = updatedCustomers;
             saveAllData();
-            renderActiveCustomerList(); 
+            renderActiveCustomerList();
             exitEditActiveCustomersMode();
             showToast('Clienti del giro attivo aggiornati.', 'success');
         }
     });
     
-    cancelActiveCustomerChangesBtn.addEventListener('click', () => {
+    if (cancelActiveCustomerChangesBtn) cancelActiveCustomerChangesBtn.addEventListener('click', () => {
         exitEditActiveCustomersMode();
-        renderActiveCustomerList(); 
+        renderActiveCustomerList();
     });
 
 
-    startRoundBtn.addEventListener('click', () => {
+    if (startRoundBtn) startRoundBtn.addEventListener('click', () => {
         if (!currentDriver) {
             showToast('Inserisci il nome del fattorino.', 'error');
-            driverNameInput.focus();
+            if (driverNameInput) driverNameInput.focus();
             return;
         }
         const validCustomers = customers.map(c => c.trim()).filter(c => c !== '');
         if (validCustomers.length === 0) {
             showToast('Inserisci almeno un cliente.', 'error');
-            const firstEmptyCustomerInput = Array.from(customerListContainer.querySelectorAll('.customer-input')).find(input => !input.value.trim());
-            if (firstEmptyCustomerInput) firstEmptyCustomerInput.focus();
-            else if (customerListContainer.querySelector('.customer-input')) customerListContainer.querySelector('.customer-input').focus();
+            if (customerListContainer) {
+                const firstEmptyCustomerInput = Array.from(customerListContainer.querySelectorAll('.customer-input')).find(input => !input.value.trim());
+                if (firstEmptyCustomerInput) firstEmptyCustomerInput.focus();
+                else if (customerListContainer.querySelector('.customer-input')) customerListContainer.querySelector('.customer-input').focus();
+            }
             return;
         }
 
@@ -1019,11 +1043,11 @@
             status: 'attivo'
         };
 
-        customers = ["", ""]; 
-        renderCustomerInputs(); 
+        customers = ["", ""];
+        renderCustomerInputs();
         updateActiveRoundUI();
         saveAllData();
-        updateDailyStats(); 
+        updateDailyStats();
 
         const startTimeFormatted = formatDate(activeRound.startTime);
         let messageContent = `INIZIO GIRO CONSEGNE\nFattorino: ${activeRound.driverName}\nData e Ora Partenza: ${startTimeFormatted}\nClienti da servire:\n`;
@@ -1035,7 +1059,7 @@
         showInteractiveToast('Giro iniziato! WhatsApp si apre...', messageContent);
     });
 
-    endRoundBtn.addEventListener('click', () => {
+    if (endRoundBtn) endRoundBtn.addEventListener('click', () => {
         if (!activeRound || isEditingActiveCustomers) return;
 
         activeRound.endTime = new Date().toISOString();
@@ -1044,7 +1068,7 @@
         activeRound.duration = formatDuration(durationMs);
         activeRound.durationMinutes = Math.floor(durationMs / (1000 * 60));
 
-        deliveryHistory.unshift({...activeRound}); 
+        deliveryHistory.unshift({...activeRound});
         
         const startTimeFormatted = formatDate(activeRound.startTime);
         const endTimeFormatted = formatDate(activeRound.endTime);
@@ -1065,12 +1089,13 @@
 
     // --- CRONOLOGIA (con ricerca e export CSV/PDF) ---
     function renderHistoryList(filterText = '') {
+        if (!deliveryHistoryList || !noHistoryMessage || !downloadReportBtn || !downloadCsvReportBtn || !downloadPdfReportBtn) return;
         deliveryHistoryList.innerHTML = '';
         
         const filteredHistory = deliveryHistory.filter(round => {
             if (!filterText) return true;
             const searchText = filterText.toLowerCase();
-            const roundDate = round.startTime ? formatDate(round.startTime).toLowerCase() : ""; 
+            const roundDate = round.startTime ? formatDate(round.startTime).toLowerCase() : "";
             return (
                 (round.driverName ? round.driverName.toLowerCase().includes(searchText) : false) ||
                 (Array.isArray(round.customers) && round.customers.some(c => c.toLowerCase().includes(searchText))) ||
@@ -1086,7 +1111,7 @@
             downloadCsvReportBtn.disabled = true;
             downloadPdfReportBtn.classList.add('opacity-50', 'cursor-not-allowed');
             downloadPdfReportBtn.disabled = true;
-            if (filterText) { 
+            if (filterText) {
                  noHistoryMessage.innerHTML = `<i class="fas fa-search fa-3x text-gray-500 mb-3"></i><p class="text-gray-400 text-sm sm:text-base">Nessun risultato per "${filterText}".</p>`;
             } else {
                  noHistoryMessage.innerHTML = `<i class="fas fa-box-open fa-3x text-gray-500 mb-3"></i><p class="text-gray-400 text-sm sm:text-base">Nessuna consegna registrata.</p>`;
@@ -1120,18 +1145,18 @@
         });
     }
 
-    historySearchInput.addEventListener('input', (e) => {
+    if (historySearchInput) historySearchInput.addEventListener('input', (e) => {
         renderHistoryList(e.target.value);
     });
     
-    downloadReportBtn.addEventListener('click', () => { // JSON
-        const filterText = historySearchInput.value;
+    if (downloadReportBtn) downloadReportBtn.addEventListener('click', () => { // JSON
+        const filterText = historySearchInput ? historySearchInput.value : '';
         const dataToExport = deliveryHistory.filter(round => {
             if (!filterText) return true;
             const searchText = filterText.toLowerCase();
             const roundDate = round.startTime ? formatDate(round.startTime).toLowerCase() : "";
-            return (round.driverName ? round.driverName.toLowerCase().includes(searchText) : false) || 
-                   (Array.isArray(round.customers) && round.customers.some(c => c.toLowerCase().includes(searchText))) || 
+            return (round.driverName ? round.driverName.toLowerCase().includes(searchText) : false) ||
+                   (Array.isArray(round.customers) && round.customers.some(c => c.toLowerCase().includes(searchText))) ||
                    roundDate.includes(searchText);
         });
 
@@ -1150,14 +1175,14 @@
         showToast('Report JSON scaricato.');
     });
 
-    downloadCsvReportBtn.addEventListener('click', () => {
-        const filterText = historySearchInput.value;
+    if (downloadCsvReportBtn) downloadCsvReportBtn.addEventListener('click', () => {
+        const filterText = historySearchInput ? historySearchInput.value : '';
         const dataToExport = deliveryHistory.filter(round => {
             if (!filterText) return true;
             const searchText = filterText.toLowerCase();
             const roundDate = round.startTime ? formatDate(round.startTime).toLowerCase() : "";
-            return (round.driverName ? round.driverName.toLowerCase().includes(searchText) : false) || 
-                   (Array.isArray(round.customers) && round.customers.some(c => c.toLowerCase().includes(searchText))) || 
+            return (round.driverName ? round.driverName.toLowerCase().includes(searchText) : false) ||
+                   (Array.isArray(round.customers) && round.customers.some(c => c.toLowerCase().includes(searchText))) ||
                    roundDate.includes(searchText);
         });
 
@@ -1166,16 +1191,15 @@
             return;
         }
 
-        let csvContent = "ID Giro;Fattorino;Ora Inizio;Ora Fine;Durata;Clienti\n"; 
+        let csvContent = "ID Giro;Fattorino;Ora Inizio;Ora Fine;Durata;Clienti\n";
         dataToExport.forEach(round => {
-            let clientiJoinable = []; 
+            let clientiJoinable = [];
             if (Array.isArray(round.customers)) {
                 clientiJoinable = round.customers;
-            } else if (round.customers) { 
+            } else if (round.customers) {
                 clientiJoinable = [String(round.customers)];
             }
-            // La riga che causava l'errore è stata resa più robusta qui sotto
-            const clientiPerCsv = clientiJoinable.join(", "); 
+            const clientiPerCsv = clientiJoinable.join(", ");
             
             const roundId = round.id || "";
             const driverName = round.driverName || "";
@@ -1183,8 +1207,7 @@
             const endTimeFormatted = round.endTime ? formatDate(round.endTime) : "N/A";
             const duration = round.duration || "N/A";
             
-            // Modificato per usare concatenazione standard per sicurezza, anche se il template literal dovrebbe funzionare
-            csvContent += String(roundId) + ";" + String(driverName) + ";" + String(startTimeFormatted) + ";" + String(endTimeFormatted) + ";" + String(duration) + ";\"" + String(clientiPerCsv) + "\"\n";
+            csvContent += `${String(roundId)};${String(driverName)};${String(startTimeFormatted)};${String(endTimeFormatted)};${String(duration)};"${String(clientiPerCsv)}"\n`;
         });
 
         const dataUri = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csvContent);
@@ -1197,20 +1220,24 @@
         showToast('Report CSV scaricato.');
     });
 
-    downloadPdfReportBtn.addEventListener('click', () => {
-        const { jsPDF } = window.jspdf;
-        if (!jsPDF) {
-            showToast('Libreria PDF non caricata.', 'error');
-            return;
+    if (downloadPdfReportBtn) downloadPdfReportBtn.addEventListener('click', () => {
+        if (!window.jspdf || !window.jspdf.jsPDF || !window.jspdf.default.autoTable) {
+             showToast('Libreria PDF (jsPDF o autoTable) non caricata correttamente.', 'error');
+             console.error('jsPDF o jsPDF.autoTable non definiti.');
+             return;
         }
+        const { jsPDF } = window.jspdf; // jsPDF è solitamente su window.jspdf.jsPDF, ma l'UMD potrebbe esporlo diversamente.
+                                      // Il bundle UMD di jspdf solitamente espone jsPDF come window.jspdf.jsPDF
+                                      // mentre jspdf-autotable aggiunge il plugin autoTable a jsPDF.API (o jsPDF.prototype)
+                                      // Per sicurezza, controlliamo se doc.autoTable esiste.
 
-        const filterText = historySearchInput.value;
+        const filterText = historySearchInput ? historySearchInput.value : '';
         const dataToExport = deliveryHistory.filter(round => {
             if (!filterText) return true;
             const searchText = filterText.toLowerCase();
             const roundDate = round.startTime ? formatDate(round.startTime).toLowerCase() : "";
-            return (round.driverName ? round.driverName.toLowerCase().includes(searchText) : false) || 
-                   (Array.isArray(round.customers) && round.customers.some(c => c.toLowerCase().includes(searchText))) || 
+            return (round.driverName ? round.driverName.toLowerCase().includes(searchText) : false) ||
+                   (Array.isArray(round.customers) && round.customers.some(c => c.toLowerCase().includes(searchText))) ||
                    roundDate.includes(searchText);
         });
         
@@ -1220,6 +1247,12 @@
         }
 
         const doc = new jsPDF();
+        if (typeof doc.autoTable !== 'function') {
+            showToast('Libreria PDF (autoTable) non caricata correttamente.', 'error');
+            console.error('doc.autoTable is not a function.');
+            return;
+        }
+
         doc.setFontSize(18);
         doc.text("Report Consegne", 14, 22);
         doc.setFontSize(11);
@@ -1238,7 +1271,7 @@
                 round.driverName || "N/A",
                 round.startTime ? formatDate(round.startTime) : "N/A",
                 round.duration || "N/A",
-                customersArray.join(",\n") 
+                customersArray.join(",\n")
             ];
             tableRows.push(roundData);
         });
@@ -1247,10 +1280,10 @@
             head: [tableColumn],
             body: tableRows,
             startY: filterText ? 42 : 36,
-            headStyles: { fillColor: [74, 74, 74] }, 
+            headStyles: { fillColor: [74, 74, 74] },
             styles: { fontSize: 8, cellPadding: 2 },
             columnStyles: {
-                3: { cellWidth: 'auto' } 
+                3: { cellWidth: 'auto' }
             }
         });
         
@@ -1262,6 +1295,7 @@
 
     // --- STATISTICHE GIORNALIERE ---
     function updateDailyStats() {
+        if (!dailyStatsContent || !noStatsToday || !statsTodayRounds || !statsTodayCustomers || !statsTodayTotalTime || !statsTodayAvgTimePerRound) return;
         const today = new Date().toISOString().slice(0, 10);
         const todayRounds = deliveryHistory.filter(round => round.startTime && round.startTime.startsWith(today) && round.status === 'concluso');
         if (todayRounds.length === 0) {
@@ -1285,15 +1319,19 @@
     }
 
     // --- ADMIN PANEL ---
-    openAdminModalLink.addEventListener('click', (e) => {
+    if (openAdminModalLink) openAdminModalLink.addEventListener('click', (e) => {
         e.preventDefault();
+        if (!adminLoginModal || !adminLoginError || !adminPasswordInput) return;
         adminLoginModal.classList.remove('hidden');
         adminLoginError.classList.add('hidden');
         adminPasswordInput.value = '';
         adminPasswordInput.focus();
     });
-    cancelAdminLoginBtn.addEventListener('click', () => adminLoginModal.classList.add('hidden'));
-    submitAdminLoginBtn.addEventListener('click', () => {
+    if (cancelAdminLoginBtn) cancelAdminLoginBtn.addEventListener('click', () => {
+        if (adminLoginModal) adminLoginModal.classList.add('hidden');
+    });
+    if (submitAdminLoginBtn) submitAdminLoginBtn.addEventListener('click', () => {
+        if (!adminPasswordInput || !adminLoginModal || !adminLoginError) return;
         if (adminPasswordInput.value === ADMIN_PASSWORD) {
             adminLoginModal.classList.add('hidden');
             switchView('admin');
@@ -1304,35 +1342,43 @@
         }
     });
     function switchView(view) {
+        if (!mainContent || !adminPanel) return;
         if (view === 'admin') {
             mainContent.classList.add('hidden');
             adminPanel.classList.remove('hidden');
             loadAdminData();
             switchAdminTab('overview');
-        } else { 
+        } else {
             mainContent.classList.remove('hidden');
             adminPanel.classList.add('hidden');
         }
     }
-    backToMainViewBtn.addEventListener('click', () => switchView('main'));
-    adminLogoutBtn.addEventListener('click', () => switchView('main'));
-    adminTabs.forEach(tab => {
+    if (backToMainViewBtn) backToMainViewBtn.addEventListener('click', () => switchView('main'));
+    if (adminLogoutBtn) adminLogoutBtn.addEventListener('click', () => switchView('main'));
+    
+    if (adminTabs) adminTabs.forEach(tab => {
         tab.addEventListener('click', (e) => {
             e.preventDefault();
             switchAdminTab(e.currentTarget.dataset.tab);
         });
     });
+
     function switchAdminTab(tabName) {
-        adminTabs.forEach(t => t.classList.toggle('bg-gray-600', t.dataset.tab === tabName));
-        adminTabs.forEach(t => t.classList.toggle('text-white', t.dataset.tab === tabName));
-        adminTabContents.forEach(content => content.classList.add('hidden'));
+        if (adminTabs) {
+            adminTabs.forEach(t => t.classList.toggle('bg-gray-600', t.dataset.tab === tabName));
+            adminTabs.forEach(t => t.classList.toggle('text-white', t.dataset.tab === tabName));
+        }
+        if (adminTabContents) adminTabContents.forEach(content => content.classList.add('hidden'));
+        
         const activeTabContent = document.getElementById(`admin${tabName.charAt(0).toUpperCase() + tabName.slice(1)}Tab`);
         if (activeTabContent) activeTabContent.classList.remove('hidden');
+        
         if (tabName === 'overview') loadAdminOverviewData();
         if (tabName === 'drivers') loadAdminDriverPerformanceData();
     }
     function loadAdminData() {
-        const uniqueDrivers = [...new Set(deliveryHistory.map(r => r.driverName))].filter(Boolean); 
+        if (!adminDriverFilter) return;
+        const uniqueDrivers = [...new Set(deliveryHistory.map(r => r.driverName))].filter(Boolean);
         adminDriverFilter.innerHTML = '<option value="">Tutti i fattorini</option>';
         uniqueDrivers.forEach(driver => {
             const option = document.createElement('option');
@@ -1340,11 +1386,15 @@
             option.textContent = driver;
             adminDriverFilter.appendChild(option);
         });
-        adminDateFilter.value = ''; 
+        if (adminDateFilter) adminDateFilter.value = '';
         loadAdminOverviewData();
     }
-    applyAdminFiltersBtn.addEventListener('click', loadAdminOverviewData);
+    if (applyAdminFiltersBtn) applyAdminFiltersBtn.addEventListener('click', loadAdminOverviewData);
+    
     function loadAdminOverviewData() {
+        if (!adminDateFilter || !adminDriverFilter || !adminNoStats || !adminTotalRounds || !adminTotalCustomers ||
+            !adminTotalDeliveryTime || !adminActiveDeliveryInfo || !adminRecentDeliveriesList || !adminNoRecentDeliveries) return;
+
         const selectedDate = adminDateFilter.value;
         const selectedDriver = adminDriverFilter.value;
         let filteredHistory = deliveryHistory.filter(r => r.status === 'concluso');
@@ -1371,9 +1421,10 @@
         });
     }
     function loadAdminDriverPerformanceData() {
+        if (!adminDriverPerformanceList || !adminNoDriverData) return;
         adminDriverPerformanceList.innerHTML = '';
-        const drivers = {}; 
-        deliveryHistory.filter(r => r.status === 'concluso' && r.driverName).forEach(round => { 
+        const drivers = {};
+        deliveryHistory.filter(r => r.status === 'concluso' && r.driverName).forEach(round => {
             if (!drivers[round.driverName]) drivers[round.driverName] = { rounds: 0, customers: 0, totalTimeMins: 0 };
             drivers[round.driverName].rounds++;
             drivers[round.driverName].customers += (Array.isArray(round.customers) ? round.customers.length : 0);
@@ -1391,33 +1442,31 @@
         }
     }
 
-    // --- INIZIALIZZAZIONE ---
-    document.addEventListener('DOMContentLoaded', () => {
-        try {
-            loadAllData(); 
-            if (customers.length === 0 && !activeRound) {
-                customers = ["", ""];
-                renderCustomerInputs(); 
-            }
-        } catch (e) {
-            console.error("Errore critico durante l'inizializzazione:", e);
-            const body = document.querySelector('body');
-            if (body) {
-                const errorDiv = document.createElement('div');
-                errorDiv.style.color = 'red';
-                errorDiv.style.backgroundColor = 'black';
-                errorDiv.style.padding = '20px';
-                errorDiv.style.position = 'fixed';
-                errorDiv.style.top = '0';
-                errorDiv.style.left = '0';
-                errorDiv.style.width = '100%';
-                errorDiv.style.zIndex = '9999';
-                errorDiv.textContent = 'ERRORE CRITICO: Impossibile inizializzare l\'applicazione. Controllare la console per dettagli.';
-                body.prepend(errorDiv); // Aggiunge il messaggio all'inizio del body
-            }
+    // --- INIZIALIZZAZIONE (precedentemente in un altro DOMContentLoaded) ---
+    try {
+        loadAllData();
+        if (customers.length === 0 && !activeRound) {
+            customers = ["", ""];
+            renderCustomerInputs();
         }
-    });
-
+    } catch (e) {
+        console.error("Errore critico durante l'inizializzazione:", e);
+        const body = document.querySelector('body');
+        if (body) {
+            const errorDiv = document.createElement('div');
+            errorDiv.style.color = 'red';
+            errorDiv.style.backgroundColor = 'black';
+            errorDiv.style.padding = '20px';
+            errorDiv.style.position = 'fixed';
+            errorDiv.style.top = '0';
+            errorDiv.style.left = '0';
+            errorDiv.style.width = '100%';
+            errorDiv.style.zIndex = '9999';
+            errorDiv.textContent = 'ERRORE CRITICO: Impossibile inizializzare l\'applicazione. Controllare la console per dettagli.';
+            body.prepend(errorDiv);
+        }
+    }
+}); // FINE DEL DOMContentLoaded PRINCIPALE
 </script>
 </body>
 </html>
