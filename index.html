@@ -1070,10 +1070,10 @@
         const filteredHistory = deliveryHistory.filter(round => {
             if (!filterText) return true;
             const searchText = filterText.toLowerCase();
-            const roundDate = formatDate(round.startTime).toLowerCase();
+            const roundDate = round.startTime ? formatDate(round.startTime).toLowerCase() : ""; 
             return (
-                round.driverName.toLowerCase().includes(searchText) ||
-                round.customers.some(c => c.toLowerCase().includes(searchText)) ||
+                (round.driverName ? round.driverName.toLowerCase().includes(searchText) : false) ||
+                (Array.isArray(round.customers) && round.customers.some(c => c.toLowerCase().includes(searchText))) ||
                 roundDate.includes(searchText)
             );
         });
@@ -1105,14 +1105,15 @@
         filteredHistory.forEach(round => {
             const div = document.createElement('div');
             div.className = 'p-3 bg-gray-500 rounded shadow text-xs sm:text-sm';
-            let customersHtml = round.customers.map(c => `<li class="ml-4"><i class="fas fa-user-tag fa-fw mr-1 text-gray-300"></i> <span class="break-all">${c}</span></li>`).join('');
+            let customersArray = Array.isArray(round.customers) ? round.customers : [];
+            let customersHtml = customersArray.map(c => `<li class="ml-4"><i class="fas fa-user-tag fa-fw mr-1 text-gray-300"></i> <span class="break-all">${c}</span></li>`).join('');
             div.innerHTML = `
                 <div class="flex justify-between items-center mb-1">
                     <p class="font-semibold"><i class="fas fa-calendar-check fa-fw mr-1"></i> ${formatDate(round.startTime)}</p>
-                    <p class="text-gray-300">Durata: ${round.duration}</p>
+                    <p class="text-gray-300">Durata: ${round.duration || 'N/A'}</p>
                 </div>
-                <p class="mb-1"><i class="fas fa-shipping-fast fa-fw mr-1"></i> Fattorino: <span class="break-all">${round.driverName}</span></p>
-                <p class="font-medium">Clienti (${round.customers.length}):</p>
+                <p class="mb-1"><i class="fas fa-shipping-fast fa-fw mr-1"></i> Fattorino: <span class="break-all">${round.driverName || 'N/A'}</span></p>
+                <p class="font-medium">Clienti (${customersArray.length}):</p>
                 <ul class="list-none">${customersHtml}</ul>
             `;
             deliveryHistoryList.appendChild(div);
@@ -1128,8 +1129,10 @@
         const dataToExport = deliveryHistory.filter(round => {
             if (!filterText) return true;
             const searchText = filterText.toLowerCase();
-            const roundDate = formatDate(round.startTime).toLowerCase();
-            return round.driverName.toLowerCase().includes(searchText) || round.customers.some(c => c.toLowerCase().includes(searchText)) || roundDate.includes(searchText);
+            const roundDate = round.startTime ? formatDate(round.startTime).toLowerCase() : "";
+            return (round.driverName ? round.driverName.toLowerCase().includes(searchText) : false) || 
+                   (Array.isArray(round.customers) && round.customers.some(c => c.toLowerCase().includes(searchText))) || 
+                   roundDate.includes(searchText);
         });
 
         if (dataToExport.length === 0) {
@@ -1152,8 +1155,10 @@
         const dataToExport = deliveryHistory.filter(round => {
             if (!filterText) return true;
             const searchText = filterText.toLowerCase();
-            const roundDate = formatDate(round.startTime).toLowerCase();
-            return round.driverName.toLowerCase().includes(searchText) || round.customers.some(c => c.toLowerCase().includes(searchText)) || roundDate.includes(searchText);
+            const roundDate = round.startTime ? formatDate(round.startTime).toLowerCase() : "";
+            return (round.driverName ? round.driverName.toLowerCase().includes(searchText) : false) || 
+                   (Array.isArray(round.customers) && round.customers.some(c => c.toLowerCase().includes(searchText))) || 
+                   roundDate.includes(searchText);
         });
 
         if (dataToExport.length === 0) {
@@ -1163,15 +1168,13 @@
 
         let csvContent = "ID Giro;Fattorino;Ora Inizio;Ora Fine;Durata;Clienti\n"; 
         dataToExport.forEach(round => {
-            let clientiJoinable = []; // Default to empty array
+            let clientiJoinable = []; 
             if (Array.isArray(round.customers)) {
                 clientiJoinable = round.customers;
-            } else {
-                console.warn("CSV Export: round.customers is not an array. Round ID:", round.id, "Value:", round.customers);
-                if (round.customers) { 
-                    clientiJoinable = [String(round.customers)];
-                }
+            } else if (round.customers) { 
+                clientiJoinable = [String(round.customers)];
             }
+            // La riga che causava l'errore è stata resa più robusta qui sotto
             const clientiPerCsv = clientiJoinable.join(", "); 
             
             const roundId = round.id || "";
@@ -1180,7 +1183,8 @@
             const endTimeFormatted = round.endTime ? formatDate(round.endTime) : "N/A";
             const duration = round.duration || "N/A";
             
-            csvContent += `${roundId};${driverName};${startTimeFormatted};${endTimeFormatted};${duration};"${clientiPerCsv}"\n`;
+            // Modificato per usare concatenazione standard per sicurezza, anche se il template literal dovrebbe funzionare
+            csvContent += String(roundId) + ";" + String(driverName) + ";" + String(startTimeFormatted) + ";" + String(endTimeFormatted) + ";" + String(duration) + ";\"" + String(clientiPerCsv) + "\"\n";
         });
 
         const dataUri = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csvContent);
@@ -1204,8 +1208,10 @@
         const dataToExport = deliveryHistory.filter(round => {
             if (!filterText) return true;
             const searchText = filterText.toLowerCase();
-            const roundDate = formatDate(round.startTime).toLowerCase();
-            return round.driverName.toLowerCase().includes(searchText) || round.customers.some(c => c.toLowerCase().includes(searchText)) || roundDate.includes(searchText);
+            const roundDate = round.startTime ? formatDate(round.startTime).toLowerCase() : "";
+            return (round.driverName ? round.driverName.toLowerCase().includes(searchText) : false) || 
+                   (Array.isArray(round.customers) && round.customers.some(c => c.toLowerCase().includes(searchText))) || 
+                   roundDate.includes(searchText);
         });
         
         if (dataToExport.length === 0) {
@@ -1223,16 +1229,16 @@
             doc.text(`Filtro applicato: "${filterText}"`, 14, 36);
         }
 
-
         const tableColumn = ["Fattorino", "Ora Inizio", "Durata", "Clienti"];
         const tableRows = [];
 
         dataToExport.forEach(round => {
+            let customersArray = Array.isArray(round.customers) ? round.customers : (round.customers ? [String(round.customers)] : []);
             const roundData = [
-                round.driverName,
-                formatDate(round.startTime),
-                round.duration,
-                round.customers.join(",\n") 
+                round.driverName || "N/A",
+                round.startTime ? formatDate(round.startTime) : "N/A",
+                round.duration || "N/A",
+                customersArray.join(",\n") 
             ];
             tableRows.push(roundData);
         });
@@ -1257,7 +1263,7 @@
     // --- STATISTICHE GIORNALIERE ---
     function updateDailyStats() {
         const today = new Date().toISOString().slice(0, 10);
-        const todayRounds = deliveryHistory.filter(round => round.startTime.startsWith(today) && round.status === 'concluso');
+        const todayRounds = deliveryHistory.filter(round => round.startTime && round.startTime.startsWith(today) && round.status === 'concluso');
         if (todayRounds.length === 0) {
             dailyStatsContent.classList.add('hidden');
             noStatsToday.classList.remove('hidden');
@@ -1266,7 +1272,7 @@
         dailyStatsContent.classList.remove('hidden');
         noStatsToday.classList.add('hidden');
         statsTodayRounds.textContent = todayRounds.length;
-        const totalCustomersToday = todayRounds.reduce((sum, round) => sum + round.customers.length, 0);
+        const totalCustomersToday = todayRounds.reduce((sum, round) => sum + (Array.isArray(round.customers) ? round.customers.length : 0), 0);
         statsTodayCustomers.textContent = totalCustomersToday;
         const totalTimeMsToday = todayRounds.reduce((sum, round) => {
             if (round.endTime && round.startTime) return sum + (new Date(round.endTime) - new Date(round.startTime));
@@ -1342,16 +1348,16 @@
         const selectedDate = adminDateFilter.value;
         const selectedDriver = adminDriverFilter.value;
         let filteredHistory = deliveryHistory.filter(r => r.status === 'concluso');
-        if (selectedDate) filteredHistory = filteredHistory.filter(r => r.startTime.startsWith(selectedDate));
+        if (selectedDate) filteredHistory = filteredHistory.filter(r => r.startTime && r.startTime.startsWith(selectedDate));
         if (selectedDriver) filteredHistory = filteredHistory.filter(r => r.driverName === selectedDriver);
         
         adminNoStats.classList.toggle('hidden', filteredHistory.length > 0);
         adminTotalRounds.textContent = filteredHistory.length;
-        adminTotalCustomers.textContent = filteredHistory.reduce((sum, r) => sum + r.customers.length, 0);
+        adminTotalCustomers.textContent = filteredHistory.reduce((sum, r) => sum + (Array.isArray(r.customers) ? r.customers.length : 0), 0);
         adminTotalDeliveryTime.textContent = formatDurationForDisplay(filteredHistory.reduce((sum, r) => sum + (r.durationMinutes || 0), 0));
 
         if (activeRound) {
-            adminActiveDeliveryInfo.innerHTML = `<p>Fattorino: <span class="font-semibold break-all">${activeRound.driverName}</span></p><p>Iniziato il: <span class="font-semibold">${formatDate(activeRound.startTime)}</span></p><p>Clienti: <span class="font-semibold break-all">${activeRound.customers.join(', ')}</span></p>`;
+            adminActiveDeliveryInfo.innerHTML = `<p>Fattorino: <span class="font-semibold break-all">${activeRound.driverName}</span></p><p>Iniziato il: <span class="font-semibold">${formatDate(activeRound.startTime)}</span></p><p>Clienti: <span class="font-semibold break-all">${(Array.isArray(activeRound.customers) ? activeRound.customers.join(', ') : '')}</span></p>`;
         } else {
             adminActiveDeliveryInfo.textContent = 'Nessuna consegna attualmente in corso.';
         }
@@ -1360,7 +1366,7 @@
         adminNoRecentDeliveries.classList.toggle('hidden', recentDeliveries.length > 0);
         recentDeliveries.forEach(r => {
             const li = document.createElement('li');
-            li.innerHTML = `<span class="font-semibold">${formatDate(r.startTime)}</span> - <span class="break-all">${r.driverName}</span> (${r.customers.length} clienti) - Durata: ${r.duration}`;
+            li.innerHTML = `<span class="font-semibold">${formatDate(r.startTime)}</span> - <span class="break-all">${r.driverName || 'N/A'}</span> (${(Array.isArray(r.customers) ? r.customers.length : 0)} clienti) - Durata: ${r.duration || 'N/A'}`;
             adminRecentDeliveriesList.appendChild(li);
         });
     }
@@ -1370,7 +1376,7 @@
         deliveryHistory.filter(r => r.status === 'concluso' && r.driverName).forEach(round => { 
             if (!drivers[round.driverName]) drivers[round.driverName] = { rounds: 0, customers: 0, totalTimeMins: 0 };
             drivers[round.driverName].rounds++;
-            drivers[round.driverName].customers += round.customers.length;
+            drivers[round.driverName].customers += (Array.isArray(round.customers) ? round.customers.length : 0);
             drivers[round.driverName].totalTimeMins += (round.durationMinutes || 0);
         });
         adminNoDriverData.classList.toggle('hidden', Object.keys(drivers).length > 0);
@@ -1387,10 +1393,28 @@
 
     // --- INIZIALIZZAZIONE ---
     document.addEventListener('DOMContentLoaded', () => {
-        loadAllData(); 
-        if (customers.length === 0 && !activeRound) {
-            customers = ["", ""];
-            renderCustomerInputs(); 
+        try {
+            loadAllData(); 
+            if (customers.length === 0 && !activeRound) {
+                customers = ["", ""];
+                renderCustomerInputs(); 
+            }
+        } catch (e) {
+            console.error("Errore critico durante l'inizializzazione:", e);
+            const body = document.querySelector('body');
+            if (body) {
+                const errorDiv = document.createElement('div');
+                errorDiv.style.color = 'red';
+                errorDiv.style.backgroundColor = 'black';
+                errorDiv.style.padding = '20px';
+                errorDiv.style.position = 'fixed';
+                errorDiv.style.top = '0';
+                errorDiv.style.left = '0';
+                errorDiv.style.width = '100%';
+                errorDiv.style.zIndex = '9999';
+                errorDiv.textContent = 'ERRORE CRITICO: Impossibile inizializzare l\'applicazione. Controllare la console per dettagli.';
+                body.prepend(errorDiv); // Aggiunge il messaggio all'inizio del body
+            }
         }
     });
 
