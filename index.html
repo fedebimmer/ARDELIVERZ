@@ -2,81 +2,107 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>A.R. AUTO - Delivery Manager</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A.R. AUTO - Delivery Manager</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.1/jspdf.plugin.autotable.min.js"></script>
 
     <style>
+        :root {
+            --bg-main: #2D2D2D;
+            --bg-card: #4A4A4A;
+            --text-main: #E0E0E0;
+            --text-secondary: #B0B0B0;
+            --input-bg: #3D3D3D;
+            --border-color: #555;
+            --accent-blue: #60a5fa; /* Tailwind blue-400 */
+        }
+
+        body.light-theme {
+            --bg-main: #f3f4f6; /* Tailwind gray-100 */
+            --bg-card: #ffffff;
+            --text-main: #1f2937; /* Tailwind gray-800 */
+            --text-secondary: #4b5563; /* Tailwind gray-600 */
+            --input-bg: #e5e7eb; /* Tailwind gray-200 */
+            --border-color: #d1d5db; /* Tailwind gray-300 */
+            --accent-blue: #3b82f6; /* Tailwind blue-500 */
+        }
+
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #2D2D2D; /* Grigio molto scuro */
-            color: #E0E0E0; /* Grigio chiaro per testo */
-            -webkit-tap-highlight-color: transparent; /* Rimuove il flash blu al tocco su mobile */
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            -webkit-tap-highlight-color: transparent;
+            transition: background-color 0.3s, color 0.3s;
         }
         .card {
-            background-color: #4A4A4A; /* Grigio più chiaro per card */
-            border-radius: 0.5rem; /* angoli arrotondati */
-            padding: 1.5rem; /* Padding interno per le card */
-            margin-bottom: 1.5rem; /* Spazio tra le card */
+            background-color: var(--bg-card);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            transition: background-color 0.3s;
         }
         .input-field {
-            background-color: #3D3D3D;
-            border: 1px solid #555;
-            color: white;
+            background-color: var(--input-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
             border-radius: 0.375rem;
-            padding: 0.75rem 1rem; /* Padding per input, buono per touch */
-            width: 100%; /* Larghezza piena di default */
+            padding: 0.75rem 1rem;
+            width: 100%;
+            transition: background-color 0.3s, border-color 0.3s, color 0.3s;
         }
         .input-field::placeholder {
-            color: #9CA3AF;
+            color: var(--text-secondary);
         }
         .btn {
-            padding: 0.75rem 1.5rem; /* Padding generoso per i bottoni principali */
+            padding: 0.75rem 1.5rem;
             border-radius: 0.375rem;
             font-weight: 600;
-            transition: background-color 0.2s ease-in-out;
+            transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out, opacity 0.2s ease-in-out;
             display: inline-flex;
             align-items: center;
-            justify-content: center; /* Centra contenuto nel bottone */
+            justify-content: center;
             gap: 0.5rem;
             cursor: pointer;
         }
         .btn-primary {
-            background-color: #28a745; /* Verde acceso */
+            background-color: #28a745;
             color: white;
         }
-        .btn-primary:hover {
-            background-color: #218838;
-        }
+        .btn-primary:hover { background-color: #218838; }
         .btn-secondary {
-            background-color: #555; /* Grigio scuro */
+            background-color: #555;
             color: white;
         }
-        .btn-secondary:hover {
-            background-color: #444;
+        body.light-theme .btn-secondary {
+            background-color: #e5e7eb; /* gray-200 */
+            color: #374151; /* gray-700 */
+            border: 1px solid #d1d5db; /* gray-300 */
         }
-        .btn-danger {
-            background-color: #dc3545; /* Rosso */
-            color: white;
+        body.light-theme .btn-secondary:hover {
+             background-color: #d1d5db; /* gray-300 */
         }
-        .btn-danger:hover {
-            background-color: #c82333;
+        .btn-secondary:hover { background-color: #444; }
+
+        .btn-danger { background-color: #dc3545; color: white; }
+        .btn-danger:hover { background-color: #c82333; }
+        .btn-neutral { background-color: #6c757d; color: white; }
+        .btn-neutral:hover { background-color: #5a6268; }
+        body.light-theme .btn-neutral {
+            background-color: #d1d5db; /* gray-300 */
+            color: #374151; /* gray-700 */
         }
-        .btn-neutral {
-            background-color: #6c757d; /* Blu-grigio */
-            color: white;
+        body.light-theme .btn-neutral:hover {
+            background-color: #9ca3af; /* gray-400 */
         }
-        .btn-neutral:hover {
-            background-color: #5a6268;
-        }
-        /* Stile per bottoni piccoli (es. rimuovi cliente, copia in toast) */
-        .btn-small {
-            padding: 0.5rem 0.75rem; 
-            font-size: 0.875rem; 
-        }
+
+        .btn-small { padding: 0.5rem 0.75rem; font-size: 0.875rem; }
         .toast {
             position: fixed;
             bottom: 20px;
@@ -90,47 +116,59 @@
             z-index: 1000;
             opacity: 0;
             transition: opacity 0.5s ease-in-out, transform 0.3s ease-in-out;
-            max-width: 350px; /* Aumentato per fare spazio al bottone copia */
+            max-width: 350px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             transform: translateY(20px);
         }
-        @media (min-width: 640px) { /* sm breakpoint di Tailwind */
-            .toast {
-                left: auto; 
-                max-width: 400px;
-            }
+        @media (min-width: 640px) { .toast { left: auto; max-width: 400px; } }
+        .toast.show { opacity: 1; transform: translateY(0); }
+        .toast-success { background-color: #333; }
+        .toast-error { background-color: #dc3545; }
+        .admin-modal-bg { background-color: rgba(0,0,0,0.7); }
+        .badge { padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
+        .badge-warning { background-color: #ffc107; color: #212529; }
+
+        /* Drag and Drop Styles */
+        .customer-draggable-item {
+            padding: 0.5rem;
+            border: 1px dashed var(--border-color);
+            border-radius: 0.25rem;
+            cursor: grab;
+            display: flex;
+            align-items: center;
+            background-color: var(--input-bg); /* Leggermente diverso per distinguerlo */
         }
-        .toast.show {
-            opacity: 1;
-            transform: translateY(0);
+        .customer-draggable-item:active { cursor: grabbing; }
+        .customer-draggable-item.dragging { opacity: 0.5; background-color: #6c757d; }
+        .drag-handle { margin-right: 0.5rem; color: var(--text-secondary); }
+
+        /* Stili per tema chiaro/scuro specifici */
+        body.light-theme #openAdminModalLink { color: var(--accent-blue); }
+        body.light-theme #openAdminModalLink:hover { color: #2563eb; } /* blue-600 */
+        body.light-theme .text-blue-400 { color: var(--accent-blue); }
+        body.light-theme .hover\:text-blue-300:hover { color: #2563eb; }
+        body.light-theme .bg-yellow-500 { background-color: #fef9c3; color: #713f12; border: 1px solid #fde047; } /* yellow-100, amber-900, yellow-400 */
+        body.light-theme .text-yellow-900 { color: #713f12; }
+        body.light-theme .badge-warning { background-color: #fde047; color: #713f12; } /* yellow-400, amber-900 */
+        body.light-theme .bg-gray-500 { background-color: #e5e7eb; } /* gray-200 */
+        body.light-theme .bg-gray-600 { background-color: #f3f4f6; } /* gray-100 */
+        body.light-theme .text-gray-300 { color: #6b7280; } /* gray-500 */
+        body.light-theme .text-gray-400 { color: #9ca3af; } /* gray-400 */
+        body.light-theme .text-gray-500 { color: #6b7280; } /* gray-500 */
+        
+        .file-input-label {
+            border: 1px solid var(--border-color);
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            border-radius: 0.375rem;
+            background-color: var(--input-bg);
+            color: var(--text-main);
         }
-        .toast-success {
-            background-color: #333; 
+        .file-input-label:hover {
+            background-color: var(--border-color);
         }
-        .toast-error {
-            background-color: #dc3545; 
-        }
-        .admin-modal-bg {
-            background-color: rgba(0,0,0,0.7);
-        }
-        .badge {
-            padding: 0.25rem 0.75rem;
-            border-radius: 9999px; /* pill */
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-        .badge-warning {
-            background-color: #ffc107;
-            color: #212529;
-        }
-        input[type=number]::-webkit-inner-spin-button,
-        input[type=number]::-webkit-outer-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-        input[type=number] {
-            -moz-appearance: textfield;
-        }
+        #importFile::file-selector-button { display: none; } /* Nasconde bottone di default */
     </style>
 </head>
 <body class="min-h-screen p-4 sm:p-6 md:p-8"> 
@@ -138,12 +176,35 @@
     <div id="app" class="max-w-4xl mx-auto"> 
         <header class="text-center mb-6 md:mb-8">
             <div class="text-xl sm:text-2xl font-bold mb-1 sm:mb-2">A.R. AUTO SNC CAR PARTS</div>
-            <h1 class="text-2xl sm:text-3xl font-bold text-white">A.R. AUTO - Delivery Manager</h1>
+            <h1 class="text-2xl sm:text-3xl font-bold">A.R. AUTO - Delivery Manager</h1>
             <p class="text-xs sm:text-sm text-gray-400 mb-2">Prodotto da Federico Battistella</p>
             <a href="#" id="openAdminModalLink" class="text-blue-400 hover:text-blue-300 underline text-sm sm:text-base">Accedi alla Dashboard Admin</a>
         </header>
 
         <main id="mainContent">
+            <section id="settingsSection" class="card">
+                <h2 class="text-lg sm:text-xl font-semibold mb-4 flex items-center"><i class="fas fa-cogs mr-2"></i>Impostazioni e Dati</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <h3 class="font-medium mb-2">Tema Applicazione</h3>
+                        <button id="themeToggleBtn" class="btn btn-secondary w-full"><i class="fas fa-adjust mr-2"></i>Cambia Tema</button>
+                    </div>
+                    <div>
+                        <h3 class="font-medium mb-2">Backup Dati</h3>
+                        <div class="flex flex-col gap-2">
+                            <button id="exportAllDataBtn" class="btn btn-neutral w-full"><i class="fas fa-file-export mr-2"></i>Esporta Tutti i Dati</button>
+                            <div>
+                                <label for="importFile" class="file-input-label w-full text-center">
+                                    <i class="fas fa-file-import mr-2"></i> Seleziona file per Importo
+                                </label>
+                                <input type="file" id="importFile" class="hidden" accept=".json">
+                            </div>
+                            <button id="importAllDataBtn" class="btn btn-neutral w-full mt-1" disabled><i class="fas fa-upload mr-2"></i>Importa Dati Selezionati</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <section id="driverSection" class="card">
                 <h2 class="text-lg sm:text-xl font-semibold mb-4 flex items-center"><i class="fas fa-user mr-2"></i>Fattorino</h2>
                 <div id="driverInputContainer">
@@ -166,9 +227,9 @@
             </div>
 
             <section id="customerInputSection" class="card">
-                <h2 class="text-lg sm:text-xl font-semibold mb-4 flex items-center"><i class="fas fa-users mr-2"></i>Inserimento Clienti</h2>
-                <div id="customerListContainer" class="space-y-3 mb-4">
-                </div>
+                <h2 class="text-lg sm:text-xl font-semibold mb-4 flex items-center"><i class="fas fa-users mr-2"></i>Inserimento Clienti (Trascina per riordinare)</h2>
+                <div id="customerListContainer" class="space-y-2 mb-4">
+                    </div>
                 <div class="flex flex-col sm:flex-row gap-3">
                     <button id="addCustomerBtn" class="btn btn-secondary w-full sm:w-auto order-2 sm:order-1"><i class="fas fa-plus"></i> Aggiungi Cliente</button>
                     <button id="startRoundBtn" class="btn btn-primary w-full sm:w-auto order-1 sm:order-2 flex-grow"><i class="fas fa-play"></i> Inizia Giro</button>
@@ -176,15 +237,29 @@
             </section>
 
             <section id="activeRoundSection" class="card hidden">
-                <h2 class="text-lg sm:text-xl font-semibold mb-4 flex items-center justify-between">
-                    <span><i class="fas fa-route mr-2"></i>Giro Consegne Attivo</span>
-                    <span class="badge badge-warning">In corso</span>
-                </h2>
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
+                    <h2 class="text-lg sm:text-xl font-semibold flex items-center">
+                        <i class="fas fa-route mr-2"></i>Giro Consegne Attivo
+                    </h2>
+                    <span class="badge badge-warning mt-2 sm:mt-0">In corso</span>
+                </div>
+                
+                <div id="editActiveCustomersWarning" class="bg-red-500 text-white p-3 rounded mb-3 text-sm hidden">
+                    <i class="fas fa-exclamation-triangle mr-2"></i> Stai modificando i clienti. Il messaggio WhatsApp originale non sarà aggiornato. Salva le modifiche per confermare.
+                </div>
+
                 <div class="mb-3">
                     <h3 class="font-medium mb-1 text-sm sm:text-base">Clienti da servire:</h3>
-                    <ul id="activeRoundCustomerList" class="list-disc list-inside pl-2 space-y-1 text-sm sm:text-base">
-                    </ul>
+                    <ul id="activeRoundCustomerList" class="list-disc list-inside pl-2 space-y-1 text-sm sm:text-base"></ul>
+                    <div id="activeRoundCustomerEditContainer" class="space-y-2 my-2 hidden">
+                        </div>
                 </div>
+                 <div class="flex flex-wrap gap-2 mt-3 mb-3">
+                    <button id="toggleEditActiveCustomersBtn" class="btn btn-secondary btn-small"><i class="fas fa-edit mr-1"></i> Modifica Clienti</button>
+                    <button id="saveActiveCustomerChangesBtn" class="btn btn-primary btn-small hidden"><i class="fas fa-save mr-1"></i> Salva Modifiche Clienti</button>
+                    <button id="cancelActiveCustomerChangesBtn" class="btn btn-danger btn-small hidden"><i class="fas fa-times mr-1"></i> Annulla Modifiche</button>
+                </div>
+
                 <div class="space-y-1 text-xs sm:text-sm">
                     <p><i class="fas fa-calendar-alt fa-fw mr-2"></i>Iniziato il: <span id="activeRoundStartTime"></span></p>
                     <p><i class="fas fa-clock fa-fw mr-2"></i>Durata: <span id="activeRoundDuration">00:00:00</span></p>
@@ -209,8 +284,16 @@
 
             <section id="historySection" class="card">
                 <h2 class="text-lg sm:text-xl font-semibold mb-4 flex items-center"><i class="fas fa-history mr-2"></i>Cronologia Consegne</h2>
+                
                 <div class="mb-4">
-                    <button id="downloadReportBtn" class="btn btn-neutral text-sm w-full sm:w-auto"><i class="fas fa-file-download mr-2"></i>Scarica Report JSON</button>
+                    <label for="historySearchInput" class="block text-sm font-medium mb-1">Cerca nella Cronologia:</label>
+                    <input type="text" id="historySearchInput" class="input-field mb-3" placeholder="Nome fattorino, cliente, data (GG/MM/AAAA)...">
+                </div>
+
+                <div class="mb-4 flex flex-wrap gap-2">
+                    <button id="downloadReportBtn" class="btn btn-neutral text-sm"><i class="fas fa-file-download mr-2"></i>JSON</button>
+                    <button id="downloadCsvReportBtn" class="btn btn-neutral text-sm"><i class="fas fa-file-csv mr-2"></i>CSV</button>
+                    <button id="downloadPdfReportBtn" class="btn btn-neutral text-sm"><i class="fas fa-file-pdf mr-2"></i>PDF</button>
                 </div>
                 <div id="deliveryHistoryList" class="space-y-4">
                 </div>
@@ -222,11 +305,10 @@
         </main>
 
         <div id="adminPanel" class="hidden">
-            <header class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-3">
-                <h1 class="text-xl sm:text-2xl font-bold text-white"><i class="fas fa-shield-alt mr-2"></i>Admin Panel</h1>
+             <header class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-3">
+                <h1 class="text-xl sm:text-2xl font-bold"><i class="fas fa-shield-alt mr-2"></i>Admin Panel</h1>
                 <button id="backToMainViewBtn" class="btn btn-secondary text-sm w-full sm:w-auto"><i class="fas fa-arrow-left mr-1"></i>Torna alla dashboard</button>
             </header>
-
             <div class="md:flex md:gap-6">
                 <aside class="w-full md:w-1/3 lg:w-1/4 card mb-6 md:mb-0">
                     <h3 class="font-semibold mb-3 text-md sm:text-lg">Navigazione</h3>
@@ -236,7 +318,6 @@
                     </nav>
                     <button id="adminLogoutBtn" class="btn btn-danger mt-8 w-full text-sm"><i class="fas fa-sign-out-alt mr-1"></i>Logout</button>
                 </aside>
-
                 <main class="w-full md:w-2/3 lg:w-3/4">
                     <div id="adminOverviewTab" class="admin-tab-content card">
                         <h2 class="text-lg sm:text-xl font-semibold mb-4">Panoramica Completa</h2>
@@ -253,7 +334,6 @@
                             </div>
                         </div>
                         <button id="applyAdminFiltersBtn" class="btn btn-primary mb-6 w-full sm:w-auto text-sm">Applica Filtri</button>
-
                         <div class="card bg-gray-600 p-3 sm:p-4 mb-4 text-xs sm:text-sm">
                             <h3 class="font-semibold mb-2 text-sm sm:text-base">Statistiche Generali Filtrate</h3>
                             <div id="adminGeneralStats">
@@ -271,16 +351,13 @@
                         </div>
                         <div class="card bg-gray-600 p-3 sm:p-4 text-xs sm:text-sm">
                             <h3 class="font-semibold mb-2 text-sm sm:text-base">Consegne Recenti (ultime 5)</h3>
-                            <ul id="adminRecentDeliveriesList" class="list-disc list-inside space-y-1">
-                            </ul>
+                            <ul id="adminRecentDeliveriesList" class="list-disc list-inside space-y-1"></ul>
                              <p id="adminNoRecentDeliveries" class="text-gray-400 hidden">Nessuna consegna recente.</p>
                         </div>
                     </div>
-
                     <div id="adminDriversTab" class="admin-tab-content card hidden">
                         <h2 class="text-lg sm:text-xl font-semibold mb-4">Performance Fattorini</h2>
-                        <div id="adminDriverPerformanceList" class="space-y-3">
-                        </div>
+                        <div id="adminDriverPerformanceList" class="space-y-3"></div>
                         <p id="adminNoDriverData" class="text-gray-400 hidden text-sm sm:text-base">Nessun dato sui fattorini disponibile.</p>
                     </div>
                 </main>
@@ -305,7 +382,25 @@
     <div id="toastContainer"></div>
 
 <script>
-    // Elementi DOM 
+    // Elementi DOM (aggiunti nuovi elementi)
+    const settingsSection = document.getElementById('settingsSection');
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
+    const exportAllDataBtn = document.getElementById('exportAllDataBtn');
+    const importFileInput = document.getElementById('importFile');
+    const importAllDataBtn = document.getElementById('importAllDataBtn');
+
+    const historySearchInput = document.getElementById('historySearchInput');
+    const downloadCsvReportBtn = document.getElementById('downloadCsvReportBtn');
+    const downloadPdfReportBtn = document.getElementById('downloadPdfReportBtn');
+
+    const toggleEditActiveCustomersBtn = document.getElementById('toggleEditActiveCustomersBtn');
+    const saveActiveCustomerChangesBtn = document.getElementById('saveActiveCustomerChangesBtn');
+    const cancelActiveCustomerChangesBtn = document.getElementById('cancelActiveCustomerChangesBtn');
+    const activeRoundCustomerEditContainer = document.getElementById('activeRoundCustomerEditContainer');
+    const editActiveCustomersWarning = document.getElementById('editActiveCustomersWarning');
+
+
+    // Elementi DOM esistenti
     const driverSection = document.getElementById('driverSection');
     const driverInputContainer = document.getElementById('driverInputContainer');
     const driverNameInput = document.getElementById('driverNameInput');
@@ -313,20 +408,17 @@
     const driverDisplayContainer = document.getElementById('driverDisplayContainer');
     const currentDriverName = document.getElementById('currentDriverName');
     const editDriverBtn = document.getElementById('editDriverBtn');
-
     const activeRoundWarning = document.getElementById('activeRoundWarning');
     const customerInputSection = document.getElementById('customerInputSection');
     const customerListContainer = document.getElementById('customerListContainer');
     const addCustomerBtn = document.getElementById('addCustomerBtn');
     const startRoundBtn = document.getElementById('startRoundBtn');
-
     const activeRoundSection = document.getElementById('activeRoundSection');
     const activeRoundCustomerList = document.getElementById('activeRoundCustomerList');
     const activeRoundStartTime = document.getElementById('activeRoundStartTime');
     const activeRoundDuration = document.getElementById('activeRoundDuration');
     const activeRoundDriverName = document.getElementById('activeRoundDriverName');
     const endRoundBtn = document.getElementById('endRoundBtn');
-
     const statsSection = document.getElementById('statsSection');
     const dailyStatsContent = document.getElementById('dailyStatsContent');
     const noStatsToday = document.getElementById('noStatsToday');
@@ -334,26 +426,22 @@
     const statsTodayCustomers = document.getElementById('statsTodayCustomers');
     const statsTodayTotalTime = document.getElementById('statsTodayTotalTime');
     const statsTodayAvgTimePerRound = document.getElementById('statsTodayAvgTimePerRound');
-
     const historySection = document.getElementById('historySection');
     const downloadReportBtn = document.getElementById('downloadReportBtn');
     const deliveryHistoryList = document.getElementById('deliveryHistoryList');
     const noHistoryMessage = document.getElementById('noHistoryMessage');
-
     const openAdminModalLink = document.getElementById('openAdminModalLink');
     const adminLoginModal = document.getElementById('adminLoginModal');
     const adminPasswordInput = document.getElementById('adminPasswordInput');
     const cancelAdminLoginBtn = document.getElementById('cancelAdminLoginBtn');
     const submitAdminLoginBtn = document.getElementById('submitAdminLoginBtn');
     const adminLoginError = document.getElementById('adminLoginError');
-
     const mainContent = document.getElementById('mainContent');
     const adminPanel = document.getElementById('adminPanel');
     const backToMainViewBtn = document.getElementById('backToMainViewBtn');
     const adminLogoutBtn = document.getElementById('adminLogoutBtn');
     const adminTabs = document.querySelectorAll('.admin-tab');
     const adminTabContents = document.querySelectorAll('.admin-tab-content');
-
     const adminDateFilter = document.getElementById('adminDateFilter');
     const adminDriverFilter = document.getElementById('adminDriverFilter');
     const applyAdminFiltersBtn = document.getElementById('applyAdminFiltersBtn');
@@ -372,41 +460,38 @@
     const ADMIN_PASSWORD = 'admin'; 
 
     let currentDriver = '';
-    let customers = [];
+    let customers = []; // Clienti per il prossimo giro
     let activeRound = null;
     let deliveryHistory = [];
     let activeRoundInterval;
+    let draggedItem = null; // Per drag and drop
+    let isEditingActiveCustomers = false;
+    let tempActiveCustomers = []; // Per modifiche non salvate ai clienti attivi
 
-    // Funzioni Helper per Toast
+
+    // --- FUNZIONI HELPER ---
     function showToast(message, type = 'success') {
         const toastContainer = document.getElementById('toastContainer');
         const toast = document.createElement('div');
         toast.className = `toast ${type === 'success' ? 'toast-success' : 'toast-error'}`;
         toast.textContent = message;
         toastContainer.appendChild(toast);
-        
         setTimeout(() => toast.classList.add('show'), 100);
-
         setTimeout(() => {
             toast.classList.remove('show');
             setTimeout(() => toast.remove(), 500);
         }, 3000);
     }
     
-    // NUOVA FUNZIONE: Toast interattivo con pulsante Copia
     function showInteractiveToast(mainMessage, copyableMessage, type = 'success') {
         const toastContainer = document.getElementById('toastContainer');
         const toast = document.createElement('div');
-        // Aggiungo flex e items-center per allineare testo e bottone
         toast.className = `toast ${type === 'success' ? 'toast-success' : 'toast-error'} flex flex-col sm:flex-row items-center gap-2 sm:gap-3`;
-
         const messageP = document.createElement('p');
         messageP.textContent = mainMessage;
-        messageP.className = 'flex-grow text-sm text-left'; // flex-grow per occupare spazio, text-left per mobile
-
+        messageP.className = 'flex-grow text-sm text-left';
         const copyBtn = document.createElement('button');
         copyBtn.innerHTML = '<i class="fas fa-copy mr-1"></i> Copia Messaggio';
-        // btn-small per dimensioni ridotte, w-full su mobile, sm:w-auto su schermi più grandi
         copyBtn.className = 'btn btn-secondary btn-small flex-shrink-0 w-full sm:w-auto'; 
         copyBtn.onclick = async () => {
             const success = await copyTextToClipboard(copyableMessage);
@@ -414,7 +499,6 @@
                 copyBtn.innerHTML = '<i class="fas fa-check mr-1"></i> Copiato!';
                 copyBtn.disabled = true;
                 setTimeout(() => {
-                    // Verifica se il toast esiste ancora prima di resettare il bottone
                     if (toast.parentElement) { 
                          copyBtn.innerHTML = '<i class="fas fa-copy mr-1"></i> Copia Messaggio';
                          copyBtn.disabled = false;
@@ -422,7 +506,7 @@
                 }, 2500);
             } else {
                 copyBtn.innerHTML = '<i class="fas fa-times mr-1"></i> Copia Fallita';
-                 setTimeout(() => { // Resetta il bottone anche in caso di fallimento
+                 setTimeout(() => { 
                     if (toast.parentElement) {
                          copyBtn.innerHTML = '<i class="fas fa-copy mr-1"></i> Copia Messaggio';
                          copyBtn.disabled = false;
@@ -430,34 +514,26 @@
                 }, 2500);
             }
         };
-        
         toast.appendChild(messageP);
         toast.appendChild(copyBtn);
         toastContainer.appendChild(toast);
-
         setTimeout(() => toast.classList.add('show'), 100);
-
-        // Durata maggiore per dare tempo di interagire
         setTimeout(() => {
             toast.classList.remove('show');
             setTimeout(() => toast.remove(), 500);
         }, 7000); 
     }
 
-    // NUOVA FUNZIONE: Copia testo negli appunti (migliorata)
     async function copyTextToClipboard(text) {
         try {
             if (navigator.clipboard && navigator.clipboard.writeText) {
                 await navigator.clipboard.writeText(text);
-                // Non mostrare toast qui, il feedback è sul bottone
                 return true;
             } else {
-                // Fallback per browser più vecchi o contesti non sicuri
                 return fallbackCopyTextToClipboard(text);
             }
         } catch (err) {
-            console.error('Errore nel copiare il testo con navigator.clipboard: ', err);
-            // Tenta il fallback se navigator.clipboard fallisce
+            console.error('Errore clipboard: ', err);
             return fallbackCopyTextToClipboard(text);
         }
     }
@@ -465,11 +541,10 @@
     function fallbackCopyTextToClipboard(text) {
         const textArea = document.createElement("textarea");
         textArea.value = text;
-        // Stili per rendere l'area di testo invisibile e non interferire con il layout
         textArea.style.position = "fixed"; 
         textArea.style.top = "-9999px";
         textArea.style.left = "-9999px";
-        textArea.style.width = "1px"; // Minima dimensione
+        textArea.style.width = "1px"; 
         textArea.style.height = "1px";
         textArea.style.opacity = "0";
         document.body.appendChild(textArea);
@@ -477,19 +552,16 @@
         textArea.select();
         try {
             const successful = document.execCommand('copy');
-            if (!successful) {
-                showToast('Impossibile copiare il messaggio.', 'error');
-            }
+            if (!successful) showToast('Impossibile copiare.', 'error');
             document.body.removeChild(textArea);
             return successful;
         } catch (err) {
-            console.error('Fallback: Errore nel copiare il testo con document.execCommand: ', err);
-            showToast('Impossibile copiare il messaggio.', 'error');
+            console.error('Fallback copia errore: ', err);
+            showToast('Impossibile copiare.', 'error');
             document.body.removeChild(textArea);
             return false;
         }
     }
-
 
     function formatDate(dateString) {
         if (!dateString) return 'N/A';
@@ -507,11 +579,7 @@
         let seconds = Math.floor((ms / 1000) % 60);
         let minutes = Math.floor((ms / (1000 * 60)) % 60);
         let hours = Math.floor((ms / (1000 * 60 * 60)) % 24);
-
-        hours = String(hours).padStart(2, '0');
-        minutes = String(minutes).padStart(2, '0');
-        seconds = String(seconds).padStart(2, '0');
-        return `${hours}:${minutes}:${seconds}`;
+        return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
     }
 
     function formatDurationForDisplay(totalMinutes) {
@@ -520,33 +588,143 @@
         return `${hours} ore ${minutes} min`;
     }
 
-    function loadData() {
+    // --- GESTIONE DATI (localStorage) ---
+    function loadAllData() {
         currentDriver = localStorage.getItem('deliveryManager_driverName') || '';
         const activeRoundData = localStorage.getItem('deliveryManager_activeRound');
-        if (activeRoundData) {
-            activeRound = JSON.parse(activeRoundData);
-        }
+        activeRound = activeRoundData ? JSON.parse(activeRoundData) : null;
+        
         const historyData = localStorage.getItem('deliveryManager_deliveryHistory');
-        if (historyData) {
-            deliveryHistory = JSON.parse(historyData);
-        }
+        deliveryHistory = historyData ? JSON.parse(historyData) : [];
+        
+        const customersData = localStorage.getItem('deliveryManager_customers');
+        customers = customersData ? JSON.parse(customersData) : [];
+
+        loadTheme(); // Carica tema
+        updateUI();
+    }
+
+    function saveAllData() {
+        localStorage.setItem('deliveryManager_driverName', currentDriver);
+        localStorage.setItem('deliveryManager_activeRound', activeRound ? JSON.stringify(activeRound) : '');
+        localStorage.setItem('deliveryManager_deliveryHistory', JSON.stringify(deliveryHistory));
+        localStorage.setItem('deliveryManager_customers', JSON.stringify(customers));
+    }
+    
+    function updateUI() { // Funzione unica per aggiornare tutta la UI
         updateDriverUI();
         updateActiveRoundUI();
         renderCustomerInputs(); 
         renderHistoryList();
         updateDailyStats();
-    }
-
-    function saveData() {
-        localStorage.setItem('deliveryManager_driverName', currentDriver);
-        if (activeRound) {
-            localStorage.setItem('deliveryManager_activeRound', JSON.stringify(activeRound));
-        } else {
-            localStorage.removeItem('deliveryManager_activeRound');
+        // Potrebbe essere necessario aggiornare anche l'admin panel se visibile
+        if (!adminPanel.classList.contains('hidden')) {
+            loadAdminData();
         }
-        localStorage.setItem('deliveryManager_deliveryHistory', JSON.stringify(deliveryHistory));
     }
 
+
+    // --- TEMA ---
+    function applyTheme(theme) {
+        if (theme === 'light') {
+            document.body.classList.add('light-theme');
+            themeToggleBtn.innerHTML = '<i class="fas fa-moon mr-2"></i> Tema Scuro';
+        } else {
+            document.body.classList.remove('light-theme');
+            themeToggleBtn.innerHTML = '<i class="fas fa-sun mr-2"></i> Tema Chiaro';
+        }
+    }
+
+    function toggleTheme() {
+        const currentTheme = localStorage.getItem('deliveryManager_theme') || 'dark';
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        localStorage.setItem('deliveryManager_theme', newTheme);
+        applyTheme(newTheme);
+    }
+
+    function loadTheme() {
+        const savedTheme = localStorage.getItem('deliveryManager_theme') || 'dark';
+        applyTheme(savedTheme);
+    }
+    themeToggleBtn.addEventListener('click', toggleTheme);
+
+    // --- BACKUP E RIPRISTINO ---
+    exportAllDataBtn.addEventListener('click', () => {
+        const dataToExport = {
+            driverName: currentDriver,
+            activeRound: activeRound,
+            deliveryHistory: deliveryHistory,
+            customers: customers // Salva anche i clienti pre-inseriti
+        };
+        const dataStr = JSON.stringify(dataToExport, null, 2);
+        const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+        const exportFileDefaultName = `delivery_manager_backup_${new Date().toISOString().slice(0,10)}.json`;
+        
+        const linkElement = document.createElement('a');
+        linkElement.setAttribute('href', dataUri);
+        linkElement.setAttribute('download', exportFileDefaultName);
+        linkElement.click();
+        linkElement.remove();
+        showToast('Dati esportati con successo!');
+    });
+
+    let importedFileContent = null;
+    importFileInput.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                importedFileContent = e.target.result;
+                importAllDataBtn.disabled = false;
+                showToast(`File "${file.name}" pronto per l'importazione.`, 'success');
+            };
+            reader.onerror = () => {
+                showToast('Errore nella lettura del file.', 'error');
+                importedFileContent = null;
+                importAllDataBtn.disabled = true;
+            }
+            reader.readAsText(file);
+        } else {
+            importedFileContent = null;
+            importAllDataBtn.disabled = true;
+        }
+    });
+
+    importAllDataBtn.addEventListener('click', () => {
+        if (!importedFileContent) {
+            showToast('Nessun file selezionato per l'importazione.', 'error');
+            return;
+        }
+        try {
+            const importedData = JSON.parse(importedFileContent);
+            // Validazione base della struttura del file
+            if (typeof importedData.driverName !== 'undefined' &&
+                typeof importedData.activeRound !== 'undefined' && // Può essere null
+                Array.isArray(importedData.deliveryHistory) &&
+                Array.isArray(importedData.customers) ) {
+
+                currentDriver = importedData.driverName || '';
+                activeRound = importedData.activeRound || null;
+                deliveryHistory = importedData.deliveryHistory || [];
+                customers = importedData.customers || [];
+
+                saveAllData();
+                loadAllData(); // Ricarica tutto e aggiorna la UI
+                showToast('Dati importati con successo!');
+            } else {
+                showToast('File di backup non valido o corrotto.', 'error');
+            }
+        } catch (error) {
+            console.error("Errore importazione dati:", error);
+            showToast('Errore durante l\'importazione dei dati. Assicurati che il file sia JSON valido.', 'error');
+        }
+        importedFileContent = null;
+        importAllDataBtn.disabled = true;
+        importFileInput.value = ''; // Resetta l'input file
+    });
+
+
+    // --- UI FATTOINO ---
     function updateDriverUI() {
         if (currentDriver) {
             driverInputContainer.classList.add('hidden');
@@ -560,19 +738,17 @@
             driverNameInput.value = ''; 
         }
     }
-
     saveDriverBtn.addEventListener('click', () => {
         const name = driverNameInput.value.trim();
         if (name) {
             currentDriver = name;
             updateDriverUI();
-            saveData();
+            saveAllData();
             showToast('Nome fattorino salvato!');
         } else {
             showToast('Inserisci un nome per il fattorino.', 'error');
         }
     });
-
     editDriverBtn.addEventListener('click', () => {
         driverNameInput.value = currentDriver;
         driverInputContainer.classList.remove('hidden');
@@ -581,6 +757,7 @@
         driverNameInput.focus();
     });
 
+    // --- UI CLIENTI (con Drag & Drop) ---
     function renderCustomerInputs() {
         customerListContainer.innerHTML = '';
         if (customers.length === 0 && !activeRound) { 
@@ -588,63 +765,121 @@
         }
         customers.forEach((customerName, index) => {
             const div = document.createElement('div');
-            div.className = 'flex items-center gap-2'; 
+            div.className = 'customer-draggable-item flex items-center gap-2';
+            div.setAttribute('draggable', true);
+            div.dataset.index = index;
+
             div.innerHTML = `
-                <i class="fas fa-user text-gray-400 text-sm sm:text-base"></i>
+                <i class="fas fa-grip-vertical drag-handle"></i>
                 <input type="text" class="input-field customer-input flex-grow text-sm sm:text-base" placeholder="Cliente ${index + 1}" value="${customerName}" data-index="${index}">
                 ${customers.length > 1 ? `<button class="btn btn-danger p-2 text-xs sm:text-sm remove-customer-btn" data-index="${index}" aria-label="Rimuovi cliente ${index + 1}"><i class="fas fa-trash"></i></button>` : ''}
             `;
             customerListContainer.appendChild(div);
+
+            // Eventi Drag & Drop per questo item
+            div.addEventListener('dragstart', handleDragStart);
+            div.addEventListener('dragend', handleDragEnd);
         });
 
+        // Eventi per il contenitore (drop zone)
+        customerListContainer.addEventListener('dragover', handleDragOver);
+        customerListContainer.addEventListener('drop', handleDrop);
+        
+        // Eventi per input e remove button
         document.querySelectorAll('.customer-input').forEach(input => {
-            input.addEventListener('change', (e) => {
+            input.addEventListener('change', (e) => { // Salva quando perde il focus o si preme invio
                 customers[parseInt(e.target.dataset.index)] = e.target.value.trim();
+                saveAllData(); // Salva subito la modifica dei clienti pre-giro
             });
              input.addEventListener('input', (e) => { 
                 customers[parseInt(e.target.dataset.index)] = e.target.value;
+                // Non salvare su ogni input per performance, ma su change
             });
         });
         document.querySelectorAll('.remove-customer-btn').forEach(button => {
             button.addEventListener('click', (e) => {
-                // Prevenire il comportamento di default se il bottone è dentro un form (non è il caso qui, ma buona pratica)
                 e.preventDefault(); 
-                // Assicurarsi che l'elemento cliccato sia il bottone stesso o un suo figlio (icona)
                 const targetButton = e.target.closest('.remove-customer-btn');
                 if (!targetButton) return;
-
                 const indexToRemove = parseInt(targetButton.dataset.index);
                 customers.splice(indexToRemove, 1);
                 if (customers.length === 0) customers.push(""); 
                 renderCustomerInputs();
+                saveAllData();
             });
         });
+    }
+
+    function handleDragStart(e) {
+        draggedItem = e.target.closest('.customer-draggable-item');
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', draggedItem.dataset.index);
+        setTimeout(() => { // Per far sparire l'elemento originale mentre si trascina
+            if(draggedItem) draggedItem.classList.add('dragging');
+        }, 0);
+    }
+
+    function handleDragEnd(e) {
+        if(draggedItem) {
+            draggedItem.classList.remove('dragging');
+            draggedItem = null;
+        }
+    }
+
+    function handleDragOver(e) {
+        e.preventDefault(); // Necessario per permettere il drop
+        e.dataTransfer.dropEffect = 'move';
+        const targetItem = e.target.closest('.customer-draggable-item');
+        if (targetItem && targetItem !== draggedItem) {
+            // Potresti aggiungere una classe per indicare dove avverrà il drop
+        }
+    }
+
+    function handleDrop(e) {
+        e.preventDefault();
+        if (!draggedItem) return;
+
+        const targetItem = e.target.closest('.customer-draggable-item');
+        const draggedIndex = parseInt(draggedItem.dataset.index);
+        let targetIndex;
+
+        if (targetItem) {
+            targetIndex = parseInt(targetItem.dataset.index);
+        } else {
+            // Se si droppa nello spazio vuoto del contenitore, aggiungi alla fine
+            targetIndex = customers.length -1;
+        }
+        
+        // Rimuovi l'elemento e inseriscilo nella nuova posizione
+        const [movedCustomer] = customers.splice(draggedIndex, 1);
+        customers.splice(targetIndex, 0, movedCustomer);
+
+        renderCustomerInputs(); // Ri-renderizza la lista con il nuovo ordine
+        saveAllData(); // Salva il nuovo ordine
     }
 
     addCustomerBtn.addEventListener('click', () => {
         customers.push('');
         renderCustomerInputs();
+        saveAllData();
         const allCustomerInputs = customerListContainer.querySelectorAll('.customer-input');
         if (allCustomerInputs.length > 0) {
             allCustomerInputs[allCustomerInputs.length - 1].focus();
         }
     });
 
+    // --- UI GIRO ATTIVO (con modifica clienti) ---
     function updateActiveRoundUI() {
         if (activeRound) {
             activeRoundWarning.classList.remove('hidden');
             customerInputSection.classList.add('hidden'); 
             activeRoundSection.classList.remove('hidden');
+            endRoundBtn.disabled = isEditingActiveCustomers; // Disabilita fine giro se in modifica
 
             activeRoundDriverName.textContent = activeRound.driverName;
             activeRoundStartTime.textContent = formatDate(activeRound.startTime);
             
-            activeRoundCustomerList.innerHTML = '';
-            activeRound.customers.forEach(customer => {
-                const li = document.createElement('li');
-                li.innerHTML = `<i class="fas fa-user-tag fa-fw mr-1 text-gray-300"></i> <span class="break-all">${customer}</span>`;
-                activeRoundCustomerList.appendChild(li);
-            });
+            renderActiveCustomerList(); // Funzione separata per renderizzare la lista clienti attiva
 
             clearInterval(activeRoundInterval);
             activeRoundInterval = setInterval(() => {
@@ -659,12 +894,114 @@
             customerInputSection.classList.remove('hidden'); 
             activeRoundSection.classList.add('hidden');
             clearInterval(activeRoundInterval);
+            exitEditActiveCustomersMode(); // Assicura che la modalità modifica sia disattivata
         }
     }
+    
+    function renderActiveCustomerList() { // Mostra i clienti del giro attivo (non modificabili)
+        activeRoundCustomerList.innerHTML = '';
+        activeRound.customers.forEach(customer => {
+            const li = document.createElement('li');
+            li.innerHTML = `<i class="fas fa-user-tag fa-fw mr-1 text-gray-300"></i> <span class="break-all">${customer}</span>`;
+            activeRoundCustomerList.appendChild(li);
+        });
+    }
+
+    function renderActiveCustomerEditInputs() { // Mostra input per modificare clienti attivi
+        activeRoundCustomerEditContainer.innerHTML = '';
+        tempActiveCustomers.forEach((customerName, index) => {
+            const div = document.createElement('div');
+            div.className = 'flex items-center gap-2';
+            div.innerHTML = `
+                <input type="text" class="input-field active-customer-edit-input flex-grow text-sm" value="${customerName}" data-index="${index}">
+                <button class="btn btn-danger btn-small remove-active-customer-btn" data-index="${index}" aria-label="Rimuovi cliente ${index + 1}"><i class="fas fa-trash"></i></button>
+            `;
+            activeRoundCustomerEditContainer.appendChild(div);
+        });
+        // Aggiungi bottone per "Aggiungi nuovo cliente al giro attivo"
+        const addBtn = document.createElement('button');
+        addBtn.className = 'btn btn-secondary btn-small mt-2';
+        addBtn.innerHTML = '<i class="fas fa-plus mr-1"></i> Aggiungi Cliente al Giro';
+        addBtn.onclick = () => {
+            tempActiveCustomers.push("");
+            renderActiveCustomerEditInputs();
+        };
+        activeRoundCustomerEditContainer.appendChild(addBtn);
+
+        document.querySelectorAll('.active-customer-edit-input').forEach(input => {
+            input.addEventListener('input', (e) => {
+                tempActiveCustomers[parseInt(e.target.dataset.index)] = e.target.value;
+            });
+        });
+        document.querySelectorAll('.remove-active-customer-btn').forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetButton = e.target.closest('.remove-active-customer-btn');
+                if (!targetButton) return;
+                const indexToRemove = parseInt(targetButton.dataset.index);
+                tempActiveCustomers.splice(indexToRemove, 1);
+                renderActiveCustomerEditInputs();
+            });
+        });
+    }
+    
+    function enterEditActiveCustomersMode() {
+        isEditingActiveCustomers = true;
+        tempActiveCustomers = [...activeRound.customers]; // Copia i clienti attuali
+        activeRoundCustomerList.classList.add('hidden'); // Nasconde la lista statica
+        activeRoundCustomerEditContainer.classList.remove('hidden'); // Mostra gli input
+        renderActiveCustomerEditInputs();
+
+        toggleEditActiveCustomersBtn.classList.add('hidden');
+        saveActiveCustomerChangesBtn.classList.remove('hidden');
+        cancelActiveCustomerChangesBtn.classList.remove('hidden');
+        editActiveCustomersWarning.classList.remove('hidden');
+        endRoundBtn.disabled = true;
+    }
+
+    function exitEditActiveCustomersMode() {
+        isEditingActiveCustomers = false;
+        activeRoundCustomerList.classList.remove('hidden'); // Mostra la lista statica
+        activeRoundCustomerEditContainer.classList.add('hidden'); // Nasconde gli input
+        activeRoundCustomerEditContainer.innerHTML = ''; // Pulisce gli input
+
+        toggleEditActiveCustomersBtn.classList.remove('hidden');
+        saveActiveCustomerChangesBtn.classList.add('hidden');
+        cancelActiveCustomerChangesBtn.classList.add('hidden');
+        editActiveCustomersWarning.classList.add('hidden');
+        if (activeRound) endRoundBtn.disabled = false; // Riabilita se c'è un giro
+    }
+
+    toggleEditActiveCustomersBtn.addEventListener('click', () => {
+        if (activeRound) {
+            enterEditActiveCustomersMode();
+        }
+    });
+
+    saveActiveCustomerChangesBtn.addEventListener('click', () => {
+        if (activeRound) {
+            const updatedCustomers = tempActiveCustomers.map(c => c.trim()).filter(c => c !== "");
+            if (updatedCustomers.length === 0) {
+                showToast('Devi avere almeno un cliente nel giro attivo.', 'error');
+                return;
+            }
+            activeRound.customers = updatedCustomers;
+            saveAllData();
+            renderActiveCustomerList(); // Aggiorna la lista statica
+            exitEditActiveCustomersMode();
+            showToast('Clienti del giro attivo aggiornati.', 'success');
+        }
+    });
+    
+    cancelActiveCustomerChangesBtn.addEventListener('click', () => {
+        exitEditActiveCustomersMode();
+        renderActiveCustomerList(); // Ripristina la visualizzazione originale
+    });
+
 
     startRoundBtn.addEventListener('click', () => {
         if (!currentDriver) {
-            showToast('Inserisci il nome del fattorino prima di iniziare.', 'error');
+            showToast('Inserisci il nome del fattorino.', 'error');
             driverNameInput.focus();
             return;
         }
@@ -672,11 +1009,8 @@
         if (validCustomers.length === 0) {
             showToast('Inserisci almeno un cliente.', 'error');
             const firstEmptyCustomerInput = Array.from(customerListContainer.querySelectorAll('.customer-input')).find(input => !input.value.trim());
-            if (firstEmptyCustomerInput) {
-                firstEmptyCustomerInput.focus();
-            } else if (customerListContainer.querySelector('.customer-input')) {
-                 customerListContainer.querySelector('.customer-input').focus();
-            }
+            if (firstEmptyCustomerInput) firstEmptyCustomerInput.focus();
+            else if (customerListContainer.querySelector('.customer-input')) customerListContainer.querySelector('.customer-input').focus();
             return;
         }
 
@@ -689,31 +1023,23 @@
         };
 
         customers = ["", ""]; 
-        renderCustomerInputs();
+        renderCustomerInputs(); // Resetta e ri-renderizza la lista per il prossimo giro
         updateActiveRoundUI();
-        saveData();
+        saveAllData();
         updateDailyStats(); 
 
         const startTimeFormatted = formatDate(activeRound.startTime);
-        let messageContent = `INIZIO GIRO CONSEGNE\n`; // Rinomino la variabile per chiarezza
-        messageContent += `Fattorino: ${activeRound.driverName}\n`;
-        messageContent += `Data e Ora Partenza: ${startTimeFormatted}\n`;
-        messageContent += `Clienti da servire:\n`;
+        let messageContent = `INIZIO GIRO CONSEGNE\nFattorino: ${activeRound.driverName}\nData e Ora Partenza: ${startTimeFormatted}\nClienti da servire:\n`;
         validCustomers.forEach(c => messageContent += `- ${c}\n`);
-        messageContent = messageContent.trim(); // Rimuovi spazi extra alla fine
+        messageContent = messageContent.trim();
         
         const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(messageContent)}`;
         window.open(whatsappUrl, '_blank');
-        
-        // MODIFICA: Usa showInteractiveToast
-        showInteractiveToast(
-            'Giro iniziato! WhatsApp si apre... Se il messaggio non si compila, copialo qui.',
-            messageContent 
-        );
+        showInteractiveToast('Giro iniziato! WhatsApp si apre...', messageContent);
     });
 
     endRoundBtn.addEventListener('click', () => {
-        if (!activeRound) return;
+        if (!activeRound || isEditingActiveCustomers) return;
 
         activeRound.endTime = new Date().toISOString();
         activeRound.status = 'concluso';
@@ -725,45 +1051,61 @@
         
         const startTimeFormatted = formatDate(activeRound.startTime);
         const endTimeFormatted = formatDate(activeRound.endTime);
-        
-        let messageContent = `RIEPILOGO GIRO CONSEGNE\n`; // Rinomino la variabile
-        messageContent += `Fattorino: ${activeRound.driverName}\n`;
-        messageContent += `Data e Ora Partenza: ${startTimeFormatted}\n`;
-        messageContent += `Data e Ora Fine: ${endTimeFormatted}\n`;
-        messageContent += `Durata Totale: ${activeRound.duration}\n`;
-        messageContent += `Clienti serviti:\n`;
+        let messageContent = `RIEPILOGO GIRO CONSEGNE\nFattorino: ${activeRound.driverName}\nData e Ora Partenza: ${startTimeFormatted}\nData e Ora Fine: ${endTimeFormatted}\nDurata Totale: ${activeRound.duration}\nClienti serviti:\n`;
         activeRound.customers.forEach(c => messageContent += `- ${c}\n`);
         messageContent = messageContent.trim();
 
         activeRound = null;
         updateActiveRoundUI();
         renderHistoryList();
-        saveData();
+        saveAllData();
         updateDailyStats();
         
         const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(messageContent)}`;
         window.open(whatsappUrl, '_blank');
-
-        // MODIFICA: Usa showInteractiveToast
-        showInteractiveToast(
-            'Giro concluso! WhatsApp si apre... Se il riepilogo non si compila, copialo qui.',
-            messageContent
-        );
+        showInteractiveToast('Giro concluso! WhatsApp si apre...', messageContent);
     });
 
-    function renderHistoryList() {
+    // --- CRONOLOGIA (con ricerca e export CSV/PDF) ---
+    function renderHistoryList(filterText = '') {
         deliveryHistoryList.innerHTML = '';
-        if (deliveryHistory.length === 0) {
+        
+        const filteredHistory = deliveryHistory.filter(round => {
+            if (!filterText) return true;
+            const searchText = filterText.toLowerCase();
+            const roundDate = formatDate(round.startTime).toLowerCase();
+            return (
+                round.driverName.toLowerCase().includes(searchText) ||
+                round.customers.some(c => c.toLowerCase().includes(searchText)) ||
+                roundDate.includes(searchText)
+            );
+        });
+
+        if (filteredHistory.length === 0) {
             noHistoryMessage.classList.remove('hidden');
             downloadReportBtn.classList.add('opacity-50', 'cursor-not-allowed');
             downloadReportBtn.disabled = true;
+            downloadCsvReportBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            downloadCsvReportBtn.disabled = true;
+            downloadPdfReportBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            downloadPdfReportBtn.disabled = true;
+            if (filterText) { // Se il filtro non ha prodotto risultati
+                 noHistoryMessage.innerHTML = `<i class="fas fa-search fa-3x text-gray-500 mb-3"></i><p class="text-gray-400 text-sm sm:text-base">Nessun risultato per "${filterText}".</p>`;
+            } else {
+                 noHistoryMessage.innerHTML = `<i class="fas fa-box-open fa-3x text-gray-500 mb-3"></i><p class="text-gray-400 text-sm sm:text-base">Nessuna consegna registrata.</p>`;
+            }
             return;
         }
         noHistoryMessage.classList.add('hidden');
         downloadReportBtn.classList.remove('opacity-50', 'cursor-not-allowed');
         downloadReportBtn.disabled = false;
+        downloadCsvReportBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        downloadCsvReportBtn.disabled = false;
+        downloadPdfReportBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        downloadPdfReportBtn.disabled = false;
 
-        deliveryHistory.forEach(round => {
+
+        filteredHistory.forEach(round => {
             const div = document.createElement('div');
             div.className = 'p-3 bg-gray-500 rounded shadow text-xs sm:text-sm';
             let customersHtml = round.customers.map(c => `<li class="ml-4"><i class="fas fa-user-tag fa-fw mr-1 text-gray-300"></i> <span class="break-all">${c}</span></li>`).join('');
@@ -779,17 +1121,27 @@
             deliveryHistoryList.appendChild(div);
         });
     }
+
+    historySearchInput.addEventListener('input', (e) => {
+        renderHistoryList(e.target.value);
+    });
     
-    downloadReportBtn.addEventListener('click', () => {
-        if (deliveryHistory.length === 0) {
-            showToast('Nessuna consegna da esportare.', 'error');
+    downloadReportBtn.addEventListener('click', () => { // JSON
+        const filterText = historySearchInput.value;
+        const dataToExport = deliveryHistory.filter(round => {
+            if (!filterText) return true;
+            const searchText = filterText.toLowerCase();
+            const roundDate = formatDate(round.startTime).toLowerCase();
+            return round.driverName.toLowerCase().includes(searchText) || round.customers.some(c => c.toLowerCase().includes(searchText)) || roundDate.includes(searchText);
+        });
+
+        if (dataToExport.length === 0) {
+            showToast('Nessuna consegna da esportare (controlla il filtro).', 'error');
             return;
         }
-        const dataStr = JSON.stringify(deliveryHistory, null, 2);
+        const dataStr = JSON.stringify(dataToExport, null, 2);
         const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-        
         const exportFileDefaultName = `report_consegne_${new Date().toISOString().slice(0,10)}.json`;
-        
         const linkElement = document.createElement('a');
         linkElement.setAttribute('href', dataUri);
         linkElement.setAttribute('download', exportFileDefaultName);
@@ -798,10 +1150,101 @@
         showToast('Report JSON scaricato.');
     });
 
+    downloadCsvReportBtn.addEventListener('click', () => {
+        const filterText = historySearchInput.value;
+        const dataToExport = deliveryHistory.filter(round => {
+            if (!filterText) return true;
+            const searchText = filterText.toLowerCase();
+            const roundDate = formatDate(round.startTime).toLowerCase();
+            return round.driverName.toLowerCase().includes(searchText) || round.customers.some(c => c.toLowerCase().includes(searchText)) || roundDate.includes(searchText);
+        });
+
+        if (dataToExport.length === 0) {
+            showToast('Nessuna consegna da esportare in CSV (controlla il filtro).', 'error');
+            return;
+        }
+
+        let csvContent = "ID Giro;Fattorino;Ora Inizio;Ora Fine;Durata;Clienti\n";
+        dataToExport.forEach(round => {
+            const clientiPerCsv = round.customers.join(", "); // Clienti separati da virgola
+            csvContent += `${round.id};${round.driverName};${formatDate(round.startTime)};${formatDate(round.endTime)};${round.duration};"${clientiPerCsv}"\n`;
+        });
+
+        const dataUri = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csvContent);
+        const exportFileDefaultName = `report_consegne_${new Date().toISOString().slice(0,10)}.csv`;
+        const linkElement = document.createElement('a');
+        linkElement.setAttribute('href', dataUri);
+        linkElement.setAttribute('download', exportFileDefaultName);
+        linkElement.click();
+        linkElement.remove();
+        showToast('Report CSV scaricato.');
+    });
+
+    downloadPdfReportBtn.addEventListener('click', () => {
+        const { jsPDF } = window.jspdf;
+        if (!jsPDF) {
+            showToast('Libreria PDF non caricata.', 'error');
+            return;
+        }
+
+        const filterText = historySearchInput.value;
+        const dataToExport = deliveryHistory.filter(round => {
+            if (!filterText) return true;
+            const searchText = filterText.toLowerCase();
+            const roundDate = formatDate(round.startTime).toLowerCase();
+            return round.driverName.toLowerCase().includes(searchText) || round.customers.some(c => c.toLowerCase().includes(searchText)) || roundDate.includes(searchText);
+        });
+        
+        if (dataToExport.length === 0) {
+            showToast('Nessuna consegna da esportare in PDF (controlla il filtro).', 'error');
+            return;
+        }
+
+        const doc = new jsPDF();
+        doc.setFontSize(18);
+        doc.text("Report Consegne", 14, 22);
+        doc.setFontSize(11);
+        doc.setTextColor(100);
+        doc.text(`Generato il: ${formatDate(new Date().toISOString())}`, 14, 30);
+        if (filterText) {
+            doc.text(`Filtro applicato: "${filterText}"`, 14, 36);
+        }
+
+
+        const tableColumn = ["Fattorino", "Ora Inizio", "Durata", "Clienti"];
+        const tableRows = [];
+
+        dataToExport.forEach(round => {
+            const roundData = [
+                round.driverName,
+                formatDate(round.startTime),
+                round.duration,
+                round.customers.join(",\n") // Clienti su più righe se necessario
+            ];
+            tableRows.push(roundData);
+        });
+
+        doc.autoTable({
+            head: [tableColumn],
+            body: tableRows,
+            startY: filterText ? 42 : 36,
+            headStyles: { fillColor: [74, 74, 74] }, // Grigio scuro per header
+            styles: { fontSize: 8, cellPadding: 2 },
+            columnStyles: {
+                3: { cellWidth: 'auto' } // Colonna clienti larghezza auto
+            }
+        });
+        
+        const exportFileDefaultName = `report_consegne_${new Date().toISOString().slice(0,10)}.pdf`;
+        doc.save(exportFileDefaultName);
+        showToast('Report PDF generato.');
+    });
+
+
+    // --- STATISTICHE GIORNALIERE ---
     function updateDailyStats() {
         const today = new Date().toISOString().slice(0, 10);
         const todayRounds = deliveryHistory.filter(round => round.startTime.startsWith(today) && round.status === 'concluso');
-
         if (todayRounds.length === 0) {
             dailyStatsContent.classList.add('hidden');
             noStatsToday.classList.remove('hidden');
@@ -809,25 +1252,20 @@
         }
         dailyStatsContent.classList.remove('hidden');
         noStatsToday.classList.add('hidden');
-
         statsTodayRounds.textContent = todayRounds.length;
-        
         const totalCustomersToday = todayRounds.reduce((sum, round) => sum + round.customers.length, 0);
         statsTodayCustomers.textContent = totalCustomersToday;
-
         const totalTimeMsToday = todayRounds.reduce((sum, round) => {
-            if (round.endTime && round.startTime) { 
-                 return sum + (new Date(round.endTime) - new Date(round.startTime));
-            }
+            if (round.endTime && round.startTime) return sum + (new Date(round.endTime) - new Date(round.startTime));
             return sum;
         }, 0);
         const totalTimeMinutesToday = Math.floor(totalTimeMsToday / (1000 * 60));
         statsTodayTotalTime.textContent = formatDurationForDisplay(totalTimeMinutesToday);
-        
         const avgTimePerRoundMinutes = todayRounds.length > 0 ? Math.round(totalTimeMinutesToday / todayRounds.length) : 0;
         statsTodayAvgTimePerRound.textContent = `${avgTimePerRoundMinutes} min`;
     }
 
+    // --- ADMIN PANEL ---
     openAdminModalLink.addEventListener('click', (e) => {
         e.preventDefault();
         adminLoginModal.classList.remove('hidden');
@@ -835,26 +1273,17 @@
         adminPasswordInput.value = '';
         adminPasswordInput.focus();
     });
-
-    cancelAdminLoginBtn.addEventListener('click', () => {
-        adminLoginModal.classList.add('hidden');
-    });
-
+    cancelAdminLoginBtn.addEventListener('click', () => adminLoginModal.classList.add('hidden'));
     submitAdminLoginBtn.addEventListener('click', () => {
         if (adminPasswordInput.value === ADMIN_PASSWORD) {
             adminLoginModal.classList.add('hidden');
-            mainContent.classList.add('hidden');
-            adminPanel.classList.remove('hidden');
-            loadAdminData(); 
-            switchAdminTab('overview');
-
+            switchView('admin');
         } else {
             adminLoginError.classList.remove('hidden');
             adminPasswordInput.value = '';
             adminPasswordInput.focus();
         }
     });
-    
     function switchView(view) {
         if (view === 'admin') {
             mainContent.classList.add('hidden');
@@ -866,41 +1295,23 @@
             adminPanel.classList.add('hidden');
         }
     }
-
     backToMainViewBtn.addEventListener('click', () => switchView('main'));
     adminLogoutBtn.addEventListener('click', () => switchView('main'));
-
-
     adminTabs.forEach(tab => {
         tab.addEventListener('click', (e) => {
             e.preventDefault();
-            const tabName = e.currentTarget.dataset.tab;
-            switchAdminTab(tabName);
+            switchAdminTab(e.currentTarget.dataset.tab);
         });
     });
-
     function switchAdminTab(tabName) {
-        adminTabs.forEach(t => {
-            if (t.dataset.tab === tabName) {
-                t.classList.add('bg-gray-600', 'text-white');
-                t.classList.remove('hover:bg-gray-700');
-            } else {
-                t.classList.remove('bg-gray-600', 'text-white');
-                t.classList.add('hover:bg-gray-700');
-            }
-        });
-        adminTabContents.forEach(content => {
-            content.classList.add('hidden');
-        });
+        adminTabs.forEach(t => t.classList.toggle('bg-gray-600', t.dataset.tab === tabName));
+        adminTabs.forEach(t => t.classList.toggle('text-white', t.dataset.tab === tabName));
+        adminTabContents.forEach(content => content.classList.add('hidden'));
         const activeTabContent = document.getElementById(`admin${tabName.charAt(0).toUpperCase() + tabName.slice(1)}Tab`);
-        if (activeTabContent) {
-            activeTabContent.classList.remove('hidden');
-        }
-        
+        if (activeTabContent) activeTabContent.classList.remove('hidden');
         if (tabName === 'overview') loadAdminOverviewData();
         if (tabName === 'drivers') loadAdminDriverPerformanceData();
     }
-
     function loadAdminData() {
         const uniqueDrivers = [...new Set(deliveryHistory.map(r => r.driverName))].filter(Boolean); 
         adminDriverFilter.innerHTML = '<option value="">Tutti i fattorini</option>';
@@ -911,108 +1322,63 @@
             adminDriverFilter.appendChild(option);
         });
         adminDateFilter.value = ''; 
-        
         loadAdminOverviewData();
     }
-    
     applyAdminFiltersBtn.addEventListener('click', loadAdminOverviewData);
-
     function loadAdminOverviewData() {
         const selectedDate = adminDateFilter.value;
         const selectedDriver = adminDriverFilter.value;
-
         let filteredHistory = deliveryHistory.filter(r => r.status === 'concluso');
-
-        if (selectedDate) {
-            filteredHistory = filteredHistory.filter(r => r.startTime.startsWith(selectedDate));
-        }
-        if (selectedDriver) {
-            filteredHistory = filteredHistory.filter(r => r.driverName === selectedDriver);
-        }
+        if (selectedDate) filteredHistory = filteredHistory.filter(r => r.startTime.startsWith(selectedDate));
+        if (selectedDriver) filteredHistory = filteredHistory.filter(r => r.driverName === selectedDriver);
         
-        if (filteredHistory.length === 0) {
-            adminNoStats.classList.remove('hidden');
-            adminTotalRounds.textContent = '0';
-            adminTotalCustomers.textContent = '0';
-            adminTotalDeliveryTime.textContent = '0h 0m';
-        } else {
-            adminNoStats.classList.add('hidden');
-            adminTotalRounds.textContent = filteredHistory.length;
-            const totalCust = filteredHistory.reduce((sum, r) => sum + r.customers.length, 0);
-            adminTotalCustomers.textContent = totalCust;
-            const totalTimeMins = filteredHistory.reduce((sum, r) => sum + (r.durationMinutes || 0), 0);
-            adminTotalDeliveryTime.textContent = formatDurationForDisplay(totalTimeMins);
-        }
+        adminNoStats.classList.toggle('hidden', filteredHistory.length > 0);
+        adminTotalRounds.textContent = filteredHistory.length;
+        adminTotalCustomers.textContent = filteredHistory.reduce((sum, r) => sum + r.customers.length, 0);
+        adminTotalDeliveryTime.textContent = formatDurationForDisplay(filteredHistory.reduce((sum, r) => sum + (r.durationMinutes || 0), 0));
 
         if (activeRound) {
-            adminActiveDeliveryInfo.innerHTML = `
-                <p>Fattorino: <span class="font-semibold break-all">${activeRound.driverName}</span></p>
-                <p>Iniziato il: <span class="font-semibold">${formatDate(activeRound.startTime)}</span></p>
-                <p>Clienti: <span class="font-semibold break-all">${activeRound.customers.join(', ')}</span></p>
-            `;
+            adminActiveDeliveryInfo.innerHTML = `<p>Fattorino: <span class="font-semibold break-all">${activeRound.driverName}</span></p><p>Iniziato il: <span class="font-semibold">${formatDate(activeRound.startTime)}</span></p><p>Clienti: <span class="font-semibold break-all">${activeRound.customers.join(', ')}</span></p>`;
         } else {
             adminActiveDeliveryInfo.textContent = 'Nessuna consegna attualmente in corso.';
         }
-
         adminRecentDeliveriesList.innerHTML = '';
         const recentDeliveries = deliveryHistory.slice(0, 5);
-        if (recentDeliveries.length > 0) {
-            adminNoRecentDeliveries.classList.add('hidden');
-            recentDeliveries.forEach(r => {
-                const li = document.createElement('li');
-                li.innerHTML = `<span class="font-semibold">${formatDate(r.startTime)}</span> - <span class="break-all">${r.driverName}</span> (${r.customers.length} clienti) - Durata: ${r.duration}`;
-                adminRecentDeliveriesList.appendChild(li);
-            });
-        } else {
-            adminNoRecentDeliveries.classList.remove('hidden');
-        }
+        adminNoRecentDeliveries.classList.toggle('hidden', recentDeliveries.length > 0);
+        recentDeliveries.forEach(r => {
+            const li = document.createElement('li');
+            li.innerHTML = `<span class="font-semibold">${formatDate(r.startTime)}</span> - <span class="break-all">${r.driverName}</span> (${r.customers.length} clienti) - Durata: ${r.duration}`;
+            adminRecentDeliveriesList.appendChild(li);
+        });
     }
-
     function loadAdminDriverPerformanceData() {
         adminDriverPerformanceList.innerHTML = '';
         const drivers = {}; 
-
         deliveryHistory.filter(r => r.status === 'concluso' && r.driverName).forEach(round => { 
-            if (!drivers[round.driverName]) {
-                drivers[round.driverName] = { rounds: 0, customers: 0, totalTimeMins: 0 };
-            }
+            if (!drivers[round.driverName]) drivers[round.driverName] = { rounds: 0, customers: 0, totalTimeMins: 0 };
             drivers[round.driverName].rounds++;
             drivers[round.driverName].customers += round.customers.length;
             drivers[round.driverName].totalTimeMins += (round.durationMinutes || 0);
         });
-
-        if (Object.keys(drivers).length === 0) {
-            adminNoDriverData.classList.remove('hidden');
-            return;
-        }
-        adminNoDriverData.classList.add('hidden');
-
+        adminNoDriverData.classList.toggle('hidden', Object.keys(drivers).length > 0);
         for (const driverName in drivers) {
             const data = drivers[driverName];
             const avgTimePerRound = data.rounds > 0 ? Math.round(data.totalTimeMins / data.rounds) : 0;
             const avgCustomersPerRound = data.rounds > 0 ? (data.customers / data.rounds).toFixed(1) : 0;
-
             const div = document.createElement('div');
             div.className = 'p-3 bg-gray-600 rounded text-xs sm:text-sm';
-            div.innerHTML = `
-                <h4 class="font-semibold text-sm sm:text-base break-all">${driverName}</h4>
-                <ul class="list-disc list-inside space-y-0.5 mt-1">
-                    <li>Giri completati: ${data.rounds}</li>
-                    <li>Clienti totali serviti: ${data.customers}</li>
-                    <li>Tempo totale in consegna: ${formatDurationForDisplay(data.totalTimeMins)}</li>
-                    <li>Tempo medio per giro: ${avgTimePerRound} min</li>
-                    <li>Clienti medi per giro: ${avgCustomersPerRound}</li>
-                </ul>
-            `;
+            div.innerHTML = `<h4 class="font-semibold text-sm sm:text-base break-all">${driverName}</h4><ul class="list-disc list-inside space-y-0.5 mt-1"><li>Giri completati: ${data.rounds}</li><li>Clienti totali serviti: ${data.customers}</li><li>Tempo totale in consegna: ${formatDurationForDisplay(data.totalTimeMins)}</li><li>Tempo medio per giro: ${avgTimePerRound} min</li><li>Clienti medi per giro: ${avgCustomersPerRound}</li></ul>`;
             adminDriverPerformanceList.appendChild(div);
         }
     }
 
+    // --- INIZIALIZZAZIONE ---
     document.addEventListener('DOMContentLoaded', () => {
-        loadData();
+        loadAllData(); // Carica tutti i dati e applica il tema
+        // Assicura che ci siano i campi cliente iniziali se non c'è un giro attivo e la lista è vuota
         if (customers.length === 0 && !activeRound) {
             customers = ["", ""];
-            renderCustomerInputs();
+            renderCustomerInputs(); // Renderizza ma non salva subito, loadAllData lo fa
         }
     });
 
