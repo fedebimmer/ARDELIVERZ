@@ -9,8 +9,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.1/jspdf.plugin.autotable.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.1/jspdf.plugin.autotable.min.js"></script>
 
     <style>
         :root {
@@ -122,7 +122,7 @@
         }
         @media (min-width: 640px) { .toast { left: auto; max-width: 400px; } }
         .toast.show { opacity: 1; transform: translateY(0); }
-        .toast-success { background-color: #333; } /* Modificato per coerenza con debug, prima era #28a745 */
+        .toast-success { background-color: #333; }
         .toast-error { background-color: #dc3545; }
         .admin-modal-bg { background-color: rgba(0,0,0,0.7); }
         .badge { padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
@@ -382,10 +382,9 @@
     <div id="toastContainer"></div>
 
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-    console.log("DEBUG: DOMContentLoaded event fired. Script execution started.");
+    console.log("Script start"); 
 
-    // Elementi DOM (lista completa come nel tuo codice)
+    // Elementi DOM 
     const settingsSection = document.getElementById('settingsSection');
     const themeToggleBtn = document.getElementById('themeToggleBtn');
     const exportAllDataBtn = document.getElementById('exportAllDataBtn');
@@ -457,17 +456,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const adminDriverPerformanceList = document.getElementById('adminDriverPerformanceList');
     const adminNoDriverData = document.getElementById('adminNoDriverData');
 
-    console.log("DEBUG: DOM element constants defined.");
-    // Verifica se gli elementi principali esistono e logga
-    const elementsToVerify = { saveDriverBtn, addCustomerBtn, startRoundBtn, themeToggleBtn, downloadReportBtn, downloadCsvReportBtn, downloadPdfReportBtn, exportAllDataBtn, importAllDataBtn, driverNameInput, customerListContainer };
-    for (const key in elementsToVerify) {
-        if (elementsToVerify[key]) {
-            console.log(`DEBUG: Element ${key} FOUND`);
-        } else {
-            console.error(`DEBUG: Element ${key} NOT FOUND - Questo è un problema!`);
-        }
-    }
-
     const WHATSAPP_NUMBER = '393939393799';
     const ADMIN_PASSWORD = 'admin'; 
 
@@ -479,16 +467,11 @@ document.addEventListener('DOMContentLoaded', () => {
     let draggedItem = null; 
     let isEditingActiveCustomers = false;
     let tempActiveCustomers = []; 
-    let importedFileContent = null;
 
 
-    // --- FUNZIONI HELPER (Complete come nel tuo codice originale) ---
+    // --- FUNZIONI HELPER ---
     function showToast(message, type = 'success') {
         const toastContainer = document.getElementById('toastContainer');
-        if (!toastContainer) { 
-            console.error("Toast container not found for message:", message);
-            return;
-        }
         const toast = document.createElement('div');
         toast.className = `toast ${type === 'success' ? 'toast-success' : 'toast-error'}`;
         toast.textContent = message;
@@ -496,16 +479,12 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => toast.classList.add('show'), 100);
         setTimeout(() => {
             toast.classList.remove('show');
-            setTimeout(() => { if(toast.parentElement) toast.remove() }, 500);
+            setTimeout(() => toast.remove(), 500);
         }, 3000);
     }
     
     function showInteractiveToast(mainMessage, copyableMessage, type = 'success') {
         const toastContainer = document.getElementById('toastContainer');
-        if (!toastContainer) {
-            console.error("Toast container not found for interactive message:", mainMessage);
-            return;
-        }
         const toast = document.createElement('div');
         toast.className = `toast ${type === 'success' ? 'toast-success' : 'toast-error'} flex flex-col sm:flex-row items-center gap-2 sm:gap-3`;
         const messageP = document.createElement('p');
@@ -541,7 +520,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => toast.classList.add('show'), 100);
         setTimeout(() => {
             toast.classList.remove('show');
-            setTimeout(() => { if(toast.parentElement) toast.remove()}, 500);
+            setTimeout(() => toast.remove(), 500);
         }, 7000); 
     }
 
@@ -611,22 +590,48 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- GESTIONE DATI (localStorage) ---
     function loadAllData() {
+        console.log("Loading data from localStorage..."); 
         currentDriver = localStorage.getItem('deliveryManager_driverName') || '';
         
         const activeRoundData = localStorage.getItem('deliveryManager_activeRound');
-        activeRound = (activeRoundData && activeRoundData !== 'null') ? JSON.parse(activeRoundData) : null;
+        try {
+            activeRound = (activeRoundData && activeRoundData !== 'null' && activeRoundData !== '') ? JSON.parse(activeRoundData) : null;
+        } catch (e) {
+            console.error("Error parsing activeRound from localStorage:", activeRoundData, e);
+            activeRound = null; 
+        }
         
         const historyData = localStorage.getItem('deliveryManager_deliveryHistory');
-        deliveryHistory = historyData ? JSON.parse(historyData) : [];
+        try {
+            deliveryHistory = historyData ? JSON.parse(historyData) : [];
+            if (!Array.isArray(deliveryHistory)) {
+                console.warn("Parsed 'deliveryHistory' was not an array. Resetting.");
+                deliveryHistory = [];
+            }
+        } catch (e) {
+            console.error("Error parsing deliveryHistory from localStorage:", historyData, e);
+            deliveryHistory = []; 
+        }
         
         const customersData = localStorage.getItem('deliveryManager_customers');
-        customers = customersData ? JSON.parse(customersData) : []; 
+        try {
+            customers = (customersData && customersData !== 'null' && customersData !== '') ? JSON.parse(customersData) : [];
+            if (!Array.isArray(customers)) {
+                console.warn("Parsed 'customers' was not an array. Resetting.");
+                customers = [];
+            }
+        } catch (e) {
+            console.error("Error parsing customers from localStorage:", customersData, e);
+            customers = []; 
+        }
 
-        if (typeof loadTheme === 'function') loadTheme(); else console.error("loadTheme non è una funzione");
-        if (typeof updateUI === 'function') updateUI(); else console.error("updateUI non è una funzione");
+        console.log("Data loaded:", { currentDriver, activeRound, deliveryHistory, customers }); 
+        loadTheme(); 
+        updateUI();
     }
 
     function saveAllData() {
+        console.log("Saving data to localStorage..."); 
         localStorage.setItem('deliveryManager_driverName', currentDriver);
         if (activeRound) {
             localStorage.setItem('deliveryManager_activeRound', JSON.stringify(activeRound));
@@ -635,17 +640,20 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         localStorage.setItem('deliveryManager_deliveryHistory', JSON.stringify(deliveryHistory));
         localStorage.setItem('deliveryManager_customers', JSON.stringify(customers));
+        console.log("Data saved."); 
     }
     
     function updateUI() { 
-        if (typeof updateDriverUI === 'function') updateDriverUI(); else console.error("updateDriverUI non è una funzione");
-        if (typeof updateActiveRoundUI === 'function') updateActiveRoundUI(); else console.error("updateActiveRoundUI non è una funzione");
-        if (typeof renderCustomerInputs === 'function') renderCustomerInputs(); else console.error("renderCustomerInputs non è una funzione");
-        if (typeof renderHistoryList === 'function') renderHistoryList(); else console.error("renderHistoryList non è una funzione");
-        if (typeof updateDailyStats === 'function') updateDailyStats(); else console.error("updateDailyStats non è una funzione");
-        if (adminPanel && !adminPanel.classList.contains('hidden')) {
-            if (typeof loadAdminData === 'function') loadAdminData(); else console.error("loadAdminData non è una funzione");
+        console.log("Updating UI..."); 
+        updateDriverUI();
+        updateActiveRoundUI();
+        renderCustomerInputs(); 
+        renderHistoryList();
+        updateDailyStats();
+        if (adminPanel && !adminPanel.classList.contains('hidden')) { 
+            loadAdminData();
         }
+        console.log("UI Updated."); 
     }
 
 
@@ -653,10 +661,10 @@ document.addEventListener('DOMContentLoaded', () => {
     function applyTheme(theme) {
         if (theme === 'light') {
             document.body.classList.add('light-theme');
-            if (themeToggleBtn) themeToggleBtn.innerHTML = '<i class="fas fa-moon mr-2"></i> Tema Scuro';
+            if(themeToggleBtn) themeToggleBtn.innerHTML = '<i class="fas fa-moon mr-2"></i> Tema Scuro';
         } else {
             document.body.classList.remove('light-theme');
-            if (themeToggleBtn) themeToggleBtn.innerHTML = '<i class="fas fa-sun mr-2"></i> Tema Chiaro';
+            if(themeToggleBtn) themeToggleBtn.innerHTML = '<i class="fas fa-sun mr-2"></i> Tema Chiaro';
         }
     }
 
@@ -671,37 +679,125 @@ document.addEventListener('DOMContentLoaded', () => {
         const savedTheme = localStorage.getItem('deliveryManager_theme') || 'dark';
         applyTheme(savedTheme);
     }
-    
+    if(themeToggleBtn) themeToggleBtn.addEventListener('click', toggleTheme);
+
     // --- BACKUP E RIPRISTINO ---
-    // (Funzioni come nel tuo codice originale)
+    if(exportAllDataBtn) exportAllDataBtn.addEventListener('click', () => {
+        const dataToExport = {
+            driverName: currentDriver,
+            activeRound: activeRound,
+            deliveryHistory: deliveryHistory,
+            customers: customers 
+        };
+        const dataStr = JSON.stringify(dataToExport, null, 2);
+        const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+        const exportFileDefaultName = `delivery_manager_backup_${new Date().toISOString().slice(0,10)}.json`;
+        
+        const linkElement = document.createElement('a');
+        linkElement.setAttribute('href', dataUri);
+        linkElement.setAttribute('download', exportFileDefaultName);
+        linkElement.click();
+        linkElement.remove();
+        showToast('Dati esportati con successo!');
+    });
+
+    let importedFileContent = null;
+    if(importFileInput) importFileInput.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                importedFileContent = e.target.result;
+                if(importAllDataBtn) importAllDataBtn.disabled = false;
+                showToast(`File "${file.name}" pronto per l'importazione.`, 'success');
+            };
+            reader.onerror = () => {
+                showToast('Errore nella lettura del file.', 'error');
+                importedFileContent = null;
+                if(importAllDataBtn) importAllDataBtn.disabled = true;
+            }
+            reader.readAsText(file);
+        } else {
+            importedFileContent = null;
+            if(importAllDataBtn) importAllDataBtn.disabled = true;
+        }
+    });
+
+    if(importAllDataBtn) importAllDataBtn.addEventListener('click', () => {
+        if (!importedFileContent) {
+            showToast('Nessun file selezionato per l'importazione.', 'error');
+            return;
+        }
+        try {
+            const importedData = JSON.parse(importedFileContent);
+            if (typeof importedData.driverName !== 'undefined' &&
+                typeof importedData.activeRound !== 'undefined' && 
+                Array.isArray(importedData.deliveryHistory) &&
+                Array.isArray(importedData.customers) ) {
+
+                currentDriver = importedData.driverName || '';
+                activeRound = importedData.activeRound || null;
+                deliveryHistory = importedData.deliveryHistory || [];
+                customers = importedData.customers || [];
+
+                saveAllData();
+                loadAllData(); 
+                showToast('Dati importati con successo!');
+            } else {
+                showToast('File di backup non valido o corrotto.', 'error');
+            }
+        } catch (error) {
+            console.error("Errore importazione dati:", error);
+            showToast('Errore durante l\'importazione dei dati. Assicurati che il file sia JSON valido.', 'error');
+        }
+        importedFileContent = null;
+        if(importAllDataBtn) importAllDataBtn.disabled = true;
+        if(importFileInput) importFileInput.value = ''; 
+    });
+
 
     // --- UI FATTOINO ---
-    // (Funzioni come nel tuo codice originale)
     function updateDriverUI() {
-        if (!driverInputContainer || !driverDisplayContainer || !currentDriverName || !driverNameInput) {
-            console.warn("DEBUG: Elementi UI Fattorino mancanti per updateDriverUI");
-            return;
-        }
         if (currentDriver) {
-            driverInputContainer.classList.add('hidden');
-            driverDisplayContainer.classList.remove('hidden');
-            driverDisplayContainer.classList.add('flex');
-            currentDriverName.textContent = currentDriver;
+            if(driverInputContainer) driverInputContainer.classList.add('hidden');
+            if(driverDisplayContainer) {
+                driverDisplayContainer.classList.remove('hidden');
+                driverDisplayContainer.classList.add('flex');
+            }
+            if(currentDriverName) currentDriverName.textContent = currentDriver;
         } else {
-            driverInputContainer.classList.remove('hidden');
-            driverDisplayContainer.classList.add('hidden');
-            driverDisplayContainer.classList.remove('flex');
-            driverNameInput.value = ''; 
+            if(driverInputContainer) driverInputContainer.classList.remove('hidden');
+            if(driverDisplayContainer) {
+                driverDisplayContainer.classList.add('hidden');
+                driverDisplayContainer.classList.remove('flex');
+            }
+            if(driverNameInput) driverNameInput.value = ''; 
         }
     }
+    if(saveDriverBtn) saveDriverBtn.addEventListener('click', () => {
+        const name = driverNameInput.value.trim();
+        if (name) {
+            currentDriver = name;
+            updateDriverUI();
+            saveAllData();
+            showToast('Nome fattorino salvato!');
+        } else {
+            showToast('Inserisci un nome per il fattorino.', 'error');
+        }
+    });
+    if(editDriverBtn) editDriverBtn.addEventListener('click', () => {
+        if(driverNameInput) driverNameInput.value = currentDriver;
+        if(driverInputContainer) driverInputContainer.classList.remove('hidden');
+        if(driverDisplayContainer) {
+            driverDisplayContainer.classList.add('hidden');
+            driverDisplayContainer.classList.remove('flex');
+        }
+        if(driverNameInput) driverNameInput.focus();
+    });
 
     // --- UI CLIENTI (con Drag & Drop) ---
-    // (Funzioni come nel tuo codice originale)
     function renderCustomerInputs() {
-        if (!customerListContainer) {
-            console.warn("DEBUG: customerListContainer mancante per renderCustomerInputs");
-            return;
-        }
+        if(!customerListContainer) return;
         customerListContainer.innerHTML = '';
         if (customers.length === 0 && !activeRound) { 
              customers = ["", ""]; 
@@ -748,428 +844,650 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
     }
-    function handleDragStart(e) { /* ... la tua funzione ... */ draggedItem = e.target.closest('.customer-draggable-item'); e.dataTransfer.effectAllowed = 'move'; if(draggedItem) { e.dataTransfer.setData('text/plain', draggedItem.dataset.index); setTimeout(() => { if(draggedItem) draggedItem.classList.add('dragging'); }, 0); } }
-    function handleDragEnd(e) { /* ... la tua funzione ... */ if(draggedItem) { draggedItem.classList.remove('dragging'); draggedItem = null; } }
-    function handleDragOver(e) { /* ... la tua funzione ... */ e.preventDefault(); e.dataTransfer.dropEffect = 'move'; }
-    function handleDrop(e) { /* ... la tua funzione ... */  e.preventDefault(); if (!draggedItem) return; const targetItem = e.target.closest('.customer-draggable-item'); const draggedIndex = parseInt(draggedItem.dataset.index); let targetIndex; if (targetItem) { targetIndex = parseInt(targetItem.dataset.index); } else { targetIndex = customers.length -1; } const [movedCustomer] = customers.splice(draggedIndex, 1); customers.splice(targetIndex, 0, movedCustomer); renderCustomerInputs(); saveAllData(); }
 
+    function handleDragStart(e) {
+        draggedItem = e.target.closest('.customer-draggable-item');
+        if(draggedItem) { 
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', draggedItem.dataset.index);
+            setTimeout(() => { 
+                if(draggedItem) draggedItem.classList.add('dragging');
+            }, 0);
+        }
+    }
+
+    function handleDragEnd(e) {
+        if(draggedItem) {
+            draggedItem.classList.remove('dragging');
+            draggedItem = null;
+        }
+    }
+
+    function handleDragOver(e) {
+        e.preventDefault(); 
+        e.dataTransfer.dropEffect = 'move';
+    }
+
+    function handleDrop(e) {
+        e.preventDefault();
+        if (!draggedItem) return;
+
+        const targetItem = e.target.closest('.customer-draggable-item');
+        const draggedIndex = parseInt(draggedItem.dataset.index);
+        let targetIndex;
+
+        if (targetItem) {
+            targetIndex = parseInt(targetItem.dataset.index);
+        } else {
+            targetIndex = customers.length -1;
+        }
+        
+        const [movedCustomer] = customers.splice(draggedIndex, 1);
+        customers.splice(targetIndex, 0, movedCustomer);
+
+        renderCustomerInputs(); 
+        saveAllData(); 
+    }
+
+    if(addCustomerBtn) addCustomerBtn.addEventListener('click', () => {
+        customers.push('');
+        renderCustomerInputs();
+        saveAllData();
+        const allCustomerInputs = customerListContainer.querySelectorAll('.customer-input');
+        if (allCustomerInputs.length > 0) {
+            allCustomerInputs[allCustomerInputs.length - 1].focus();
+        }
+    });
 
     // --- UI GIRO ATTIVO (con modifica clienti) ---
-    // (Funzioni come nel tuo codice originale)
-    function updateActiveRoundUI() { /* ... la tua funzione ... */ if (!activeRoundWarning || !customerInputSection || !activeRoundSection || !endRoundBtn || !activeRoundDriverName || !activeRoundStartTime || !activeRoundDuration ) return; if (activeRound) { activeRoundWarning.classList.remove('hidden'); customerInputSection.classList.add('hidden'); activeRoundSection.classList.remove('hidden'); if(endRoundBtn) endRoundBtn.disabled = isEditingActiveCustomers; if(activeRoundDriverName) activeRoundDriverName.textContent = activeRound.driverName; if(activeRoundStartTime) activeRoundStartTime.textContent = formatDate(activeRound.startTime); renderActiveCustomerList(); clearInterval(activeRoundInterval); activeRoundInterval = setInterval(() => { const durationMs = new Date() - new Date(activeRound.startTime); if(activeRoundDuration) activeRoundDuration.textContent = formatDuration(durationMs); }, 1000); const initialDurationMs = new Date() - new Date(activeRound.startTime); if(activeRoundDuration) activeRoundDuration.textContent = formatDuration(initialDurationMs); } else { activeRoundWarning.classList.add('hidden'); customerInputSection.classList.remove('hidden'); activeRoundSection.classList.add('hidden'); clearInterval(activeRoundInterval); exitEditActiveCustomersMode(); } }
-    function renderActiveCustomerList() { /* ... la tua funzione ... */ if(!activeRoundCustomerList) return; activeRoundCustomerList.innerHTML = ''; if(activeRound && activeRound.customers) { activeRound.customers.forEach(customer => { const li = document.createElement('li'); li.innerHTML = `<i class="fas fa-user-tag fa-fw mr-1 text-gray-300"></i> <span class="break-all">${customer}</span>`; activeRoundCustomerList.appendChild(li); }); } }
-    function renderActiveCustomerEditInputs() { /* ... la tua funzione ... */  if(!activeRoundCustomerEditContainer) return; activeRoundCustomerEditContainer.innerHTML = ''; tempActiveCustomers.forEach((customerName, index) => { const div = document.createElement('div'); div.className = 'flex items-center gap-2'; div.innerHTML = `<input type="text" class="input-field active-customer-edit-input flex-grow text-sm" value="${customerName}" data-index="${index}"><button class="btn btn-danger btn-small remove-active-customer-btn" data-index="${index}" aria-label="Rimuovi cliente ${index + 1}"><i class="fas fa-trash"></i></button>`; activeRoundCustomerEditContainer.appendChild(div); }); const addBtn = document.createElement('button'); addBtn.className = 'btn btn-secondary btn-small mt-2'; addBtn.innerHTML = '<i class="fas fa-plus mr-1"></i> Aggiungi Cliente al Giro'; addBtn.onclick = () => { tempActiveCustomers.push(""); renderActiveCustomerEditInputs(); }; activeRoundCustomerEditContainer.appendChild(addBtn); document.querySelectorAll('.active-customer-edit-input').forEach(input => { input.addEventListener('input', (e) => { tempActiveCustomers[parseInt(e.target.dataset.index)] = e.target.value; }); }); document.querySelectorAll('.remove-active-customer-btn').forEach(button => { button.addEventListener('click', (e) => { e.preventDefault(); const targetButton = e.target.closest('.remove-active-customer-btn'); if (!targetButton) return; const indexToRemove = parseInt(targetButton.dataset.index); tempActiveCustomers.splice(indexToRemove, 1); renderActiveCustomerEditInputs(); }); });}
-    function enterEditActiveCustomersMode() { /* ... la tua funzione ... */  if (!activeRoundCustomerList || !activeRoundCustomerEditContainer || !toggleEditActiveCustomersBtn || !saveActiveCustomerChangesBtn || !cancelActiveCustomerChangesBtn || !editActiveCustomersWarning || !endRoundBtn) return; isEditingActiveCustomers = true; tempActiveCustomers = [...activeRound.customers]; activeRoundCustomerList.classList.add('hidden'); activeRoundCustomerEditContainer.classList.remove('hidden'); renderActiveCustomerEditInputs(); toggleEditActiveCustomersBtn.classList.add('hidden'); saveActiveCustomerChangesBtn.classList.remove('hidden'); cancelActiveCustomerChangesBtn.classList.remove('hidden'); editActiveCustomersWarning.classList.remove('hidden'); endRoundBtn.disabled = true; }
-    function exitEditActiveCustomersMode() { /* ... la tua funzione ... */  if (!activeRoundCustomerList || !activeRoundCustomerEditContainer || !toggleEditActiveCustomersBtn || !saveActiveCustomerChangesBtn || !cancelActiveCustomerChangesBtn || !editActiveCustomersWarning || !endRoundBtn) return; isEditingActiveCustomers = false; activeRoundCustomerList.classList.remove('hidden'); activeRoundCustomerEditContainer.classList.add('hidden'); activeRoundCustomerEditContainer.innerHTML = ''; toggleEditActiveCustomersBtn.classList.remove('hidden'); saveActiveCustomerChangesBtn.classList.add('hidden'); cancelActiveCustomerChangesBtn.classList.add('hidden'); editActiveCustomersWarning.classList.add('hidden'); if (activeRound && endRoundBtn) endRoundBtn.disabled = false; }
+    function updateActiveRoundUI() {
+        if (activeRound) {
+            if(activeRoundWarning) activeRoundWarning.classList.remove('hidden');
+            if(customerInputSection) customerInputSection.classList.add('hidden'); 
+            if(activeRoundSection) activeRoundSection.classList.remove('hidden');
+            if(endRoundBtn) endRoundBtn.disabled = isEditingActiveCustomers; 
 
+            if(activeRoundDriverName) activeRoundDriverName.textContent = activeRound.driverName;
+            if(activeRoundStartTime) activeRoundStartTime.textContent = formatDate(activeRound.startTime);
+            
+            renderActiveCustomerList(); 
+
+            clearInterval(activeRoundInterval);
+            activeRoundInterval = setInterval(() => {
+                const durationMs = new Date() - new Date(activeRound.startTime);
+                if(activeRoundDuration) activeRoundDuration.textContent = formatDuration(durationMs);
+            }, 1000);
+            const initialDurationMs = new Date() - new Date(activeRound.startTime);
+            if(activeRoundDuration) activeRoundDuration.textContent = formatDuration(initialDurationMs);
+
+        } else {
+            if(activeRoundWarning) activeRoundWarning.classList.add('hidden');
+            if(customerInputSection) customerInputSection.classList.remove('hidden'); 
+            if(activeRoundSection) activeRoundSection.classList.add('hidden');
+            clearInterval(activeRoundInterval);
+            exitEditActiveCustomersMode(); 
+        }
+    }
+    
+    function renderActiveCustomerList() { 
+        if(!activeRoundCustomerList) return;
+        activeRoundCustomerList.innerHTML = '';
+        if(activeRound && activeRound.customers) { 
+            activeRound.customers.forEach(customer => {
+                const li = document.createElement('li');
+                li.innerHTML = `<i class="fas fa-user-tag fa-fw mr-1 text-gray-300"></i> <span class="break-all">${customer}</span>`;
+                activeRoundCustomerList.appendChild(li);
+            });
+        }
+    }
+
+    function renderActiveCustomerEditInputs() { 
+        if(!activeRoundCustomerEditContainer) return;
+        activeRoundCustomerEditContainer.innerHTML = '';
+        tempActiveCustomers.forEach((customerName, index) => {
+            const div = document.createElement('div');
+            div.className = 'flex items-center gap-2';
+            div.innerHTML = `
+                <input type="text" class="input-field active-customer-edit-input flex-grow text-sm" value="${customerName}" data-index="${index}">
+                <button class="btn btn-danger btn-small remove-active-customer-btn" data-index="${index}" aria-label="Rimuovi cliente ${index + 1}"><i class="fas fa-trash"></i></button>
+            `;
+            activeRoundCustomerEditContainer.appendChild(div);
+        });
+        const addBtn = document.createElement('button');
+        addBtn.className = 'btn btn-secondary btn-small mt-2';
+        addBtn.innerHTML = '<i class="fas fa-plus mr-1"></i> Aggiungi Cliente al Giro';
+        addBtn.onclick = () => {
+            tempActiveCustomers.push("");
+            renderActiveCustomerEditInputs();
+        };
+        activeRoundCustomerEditContainer.appendChild(addBtn);
+
+        document.querySelectorAll('.active-customer-edit-input').forEach(input => {
+            input.addEventListener('input', (e) => {
+                tempActiveCustomers[parseInt(e.target.dataset.index)] = e.target.value;
+            });
+        });
+        document.querySelectorAll('.remove-active-customer-btn').forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetButton = e.target.closest('.remove-active-customer-btn');
+                if (!targetButton) return;
+                const indexToRemove = parseInt(targetButton.dataset.index);
+                tempActiveCustomers.splice(indexToRemove, 1);
+                renderActiveCustomerEditInputs();
+            });
+        });
+    }
+    
+    function enterEditActiveCustomersMode() {
+        isEditingActiveCustomers = true;
+        if (activeRound && Array.isArray(activeRound.customers)) {
+            tempActiveCustomers = [...activeRound.customers]; 
+        } else {
+            tempActiveCustomers = []; 
+        }
+        if(activeRoundCustomerList) activeRoundCustomerList.classList.add('hidden'); 
+        if(activeRoundCustomerEditContainer) activeRoundCustomerEditContainer.classList.remove('hidden'); 
+        renderActiveCustomerEditInputs();
+
+        if(toggleEditActiveCustomersBtn) toggleEditActiveCustomersBtn.classList.add('hidden');
+        if(saveActiveCustomerChangesBtn) saveActiveCustomerChangesBtn.classList.remove('hidden');
+        if(cancelActiveCustomerChangesBtn) cancelActiveCustomerChangesBtn.classList.remove('hidden');
+        if(editActiveCustomersWarning) editActiveCustomersWarning.classList.remove('hidden');
+        if(endRoundBtn) endRoundBtn.disabled = true;
+    }
+
+    function exitEditActiveCustomersMode() {
+        isEditingActiveCustomers = false;
+        if(activeRoundCustomerList) activeRoundCustomerList.classList.remove('hidden'); 
+        if(activeRoundCustomerEditContainer) {
+            activeRoundCustomerEditContainer.classList.add('hidden'); 
+            activeRoundCustomerEditContainer.innerHTML = ''; 
+        }
+
+        if(toggleEditActiveCustomersBtn) toggleEditActiveCustomersBtn.classList.remove('hidden');
+        if(saveActiveCustomerChangesBtn) saveActiveCustomerChangesBtn.classList.add('hidden');
+        if(cancelActiveCustomerChangesBtn) cancelActiveCustomerChangesBtn.classList.add('hidden');
+        if(editActiveCustomersWarning) editActiveCustomersWarning.classList.add('hidden');
+        if (activeRound && endRoundBtn) endRoundBtn.disabled = false; 
+    }
+
+    if(toggleEditActiveCustomersBtn) toggleEditActiveCustomersBtn.addEventListener('click', () => {
+        if (activeRound) {
+            enterEditActiveCustomersMode();
+        }
+    });
+
+    if(saveActiveCustomerChangesBtn) saveActiveCustomerChangesBtn.addEventListener('click', () => {
+        if (activeRound) {
+            const updatedCustomers = tempActiveCustomers.map(c => c.trim()).filter(c => c !== "");
+            if (updatedCustomers.length === 0) {
+                showToast('Devi avere almeno un cliente nel giro attivo.', 'error');
+                return;
+            }
+            activeRound.customers = updatedCustomers;
+            saveAllData();
+            renderActiveCustomerList(); 
+            exitEditActiveCustomersMode();
+            showToast('Clienti del giro attivo aggiornati.', 'success');
+        }
+    });
+    
+    if(cancelActiveCustomerChangesBtn) cancelActiveCustomerChangesBtn.addEventListener('click', () => {
+        exitEditActiveCustomersMode();
+        renderActiveCustomerList(); 
+    });
+
+
+    if(startRoundBtn) startRoundBtn.addEventListener('click', () => {
+        if (!currentDriver) {
+            showToast('Inserisci il nome del fattorino.', 'error');
+            if(driverNameInput) driverNameInput.focus();
+            return;
+        }
+        const validCustomers = customers.map(c => c.trim()).filter(c => c !== '');
+        if (validCustomers.length === 0) {
+            showToast('Inserisci almeno un cliente.', 'error');
+            const firstEmptyCustomerInput = Array.from(customerListContainer.querySelectorAll('.customer-input')).find(input => !input.value.trim());
+            if (firstEmptyCustomerInput) firstEmptyCustomerInput.focus();
+            else if (customerListContainer.querySelector('.customer-input')) customerListContainer.querySelector('.customer-input').focus();
+            return;
+        }
+
+        activeRound = {
+            id: `round_${new Date().getTime()}`,
+            driverName: currentDriver,
+            customers: validCustomers,
+            startTime: new Date().toISOString(),
+            status: 'attivo'
+        };
+
+        customers = ["", ""]; 
+        renderCustomerInputs(); 
+        updateActiveRoundUI();
+        saveAllData();
+        updateDailyStats(); 
+
+        const startTimeFormatted = formatDate(activeRound.startTime);
+        let messageContent = `INIZIO GIRO CONSEGNE\nFattorino: ${activeRound.driverName}\nData e Ora Partenza: ${startTimeFormatted}\nClienti da servire:\n`;
+        validCustomers.forEach(c => messageContent += `- ${c}\n`);
+        messageContent = messageContent.trim();
+        
+        const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(messageContent)}`;
+        window.open(whatsappUrl, '_blank');
+        showInteractiveToast('Giro iniziato! WhatsApp si apre...', messageContent);
+    });
+
+    if(endRoundBtn) endRoundBtn.addEventListener('click', () => {
+        if (!activeRound || isEditingActiveCustomers) return;
+
+        activeRound.endTime = new Date().toISOString();
+        activeRound.status = 'concluso';
+        const durationMs = new Date(activeRound.endTime) - new Date(activeRound.startTime);
+        activeRound.duration = formatDuration(durationMs);
+        activeRound.durationMinutes = Math.floor(durationMs / (1000 * 60));
+
+        deliveryHistory.unshift({...activeRound}); 
+        
+        const startTimeFormatted = formatDate(activeRound.startTime);
+        const endTimeFormatted = formatDate(activeRound.endTime);
+        let messageContent = `RIEPILOGO GIRO CONSEGNE\nFattorino: ${activeRound.driverName}\nData e Ora Partenza: ${startTimeFormatted}\nData e Ora Fine: ${endTimeFormatted}\nDurata Totale: ${activeRound.duration}\nClienti serviti:\n`;
+        if(Array.isArray(activeRound.customers)) { 
+            activeRound.customers.forEach(c => messageContent += `- ${c}\n`);
+        }
+        messageContent = messageContent.trim();
+
+        activeRound = null;
+        updateActiveRoundUI();
+        renderHistoryList();
+        saveAllData();
+        updateDailyStats();
+        
+        const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(messageContent)}`;
+        window.open(whatsappUrl, '_blank');
+        showInteractiveToast('Giro concluso! WhatsApp si apre...', messageContent);
+    });
 
     // --- CRONOLOGIA (con ricerca e export CSV/PDF) ---
-    // (Funzioni come nel tuo codice originale)
-    function renderHistoryList(filterText = '') { /* ... la tua funzione ... */ if (!deliveryHistoryList || !noHistoryMessage || !downloadReportBtn || !downloadCsvReportBtn || !downloadPdfReportBtn) return; deliveryHistoryList.innerHTML = ''; const filteredHistory = deliveryHistory.filter(round => { if (!filterText) return true; const searchText = filterText.toLowerCase(); const roundDate = round.startTime ? formatDate(round.startTime).toLowerCase() : ""; return ( (round.driverName ? round.driverName.toLowerCase().includes(searchText) : false) || (Array.isArray(round.customers) && round.customers.some(c => c.toLowerCase().includes(searchText))) || roundDate.includes(searchText) ); }); if (filteredHistory.length === 0) { noHistoryMessage.classList.remove('hidden'); downloadReportBtn.classList.add('opacity-50', 'cursor-not-allowed'); downloadReportBtn.disabled = true; downloadCsvReportBtn.classList.add('opacity-50', 'cursor-not-allowed'); downloadCsvReportBtn.disabled = true; downloadPdfReportBtn.classList.add('opacity-50', 'cursor-not-allowed'); downloadPdfReportBtn.disabled = true; if (filterText) { noHistoryMessage.innerHTML = `<i class="fas fa-search fa-3x text-gray-500 mb-3"></i><p class="text-gray-400 text-sm sm:text-base">Nessun risultato per "${filterText}".</p>`; } else { noHistoryMessage.innerHTML = `<i class="fas fa-box-open fa-3x text-gray-500 mb-3"></i><p class="text-gray-400 text-sm sm:text-base">Nessuna consegna registrata.</p>`; } return; } noHistoryMessage.classList.add('hidden'); downloadReportBtn.classList.remove('opacity-50', 'cursor-not-allowed'); downloadReportBtn.disabled = false; downloadCsvReportBtn.classList.remove('opacity-50', 'cursor-not-allowed'); downloadCsvReportBtn.disabled = false; downloadPdfReportBtn.classList.remove('opacity-50', 'cursor-not-allowed'); downloadPdfReportBtn.disabled = false; filteredHistory.forEach(round => { const div = document.createElement('div'); div.className = 'p-3 bg-gray-500 rounded shadow text-xs sm:text-sm'; let customersArray = Array.isArray(round.customers) ? round.customers : []; let customersHtml = customersArray.map(c => `<li class="ml-4"><i class="fas fa-user-tag fa-fw mr-1 text-gray-300"></i> <span class="break-all">${c}</span></li>`).join(''); div.innerHTML = ` <div class="flex justify-between items-center mb-1"> <p class="font-semibold"><i class="fas fa-calendar-check fa-fw mr-1"></i> ${formatDate(round.startTime)}</p> <p class="text-gray-300">Durata: ${round.duration || 'N/A'}</p> </div> <p class="mb-1"><i class="fas fa-shipping-fast fa-fw mr-1"></i> Fattorino: <span class="break-all">${round.driverName || 'N/A'}</span></p> <p class="font-medium">Clienti (${customersArray.length}):</p> <ul class="list-none">${customersHtml}</ul> `; deliveryHistoryList.appendChild(div); }); }
+    function renderHistoryList(filterText = '') {
+        if(!deliveryHistoryList) return;
+        deliveryHistoryList.innerHTML = '';
+        
+        const filteredHistory = deliveryHistory.filter(round => {
+            if (!filterText) return true;
+            const searchText = filterText.toLowerCase();
+            const roundDate = round.startTime ? formatDate(round.startTime).toLowerCase() : ""; 
+            return (
+                (round.driverName ? round.driverName.toLowerCase().includes(searchText) : false) ||
+                (Array.isArray(round.customers) && round.customers.some(c => c.toLowerCase().includes(searchText))) ||
+                roundDate.includes(searchText)
+            );
+        });
+
+        if (filteredHistory.length === 0) {
+            if(noHistoryMessage) noHistoryMessage.classList.remove('hidden');
+            if(downloadReportBtn) { downloadReportBtn.classList.add('opacity-50', 'cursor-not-allowed'); downloadReportBtn.disabled = true; }
+            if(downloadCsvReportBtn) { downloadCsvReportBtn.classList.add('opacity-50', 'cursor-not-allowed'); downloadCsvReportBtn.disabled = true; }
+            if(downloadPdfReportBtn) { downloadPdfReportBtn.classList.add('opacity-50', 'cursor-not-allowed'); downloadPdfReportBtn.disabled = true; }
+            
+            if (noHistoryMessage) { 
+                if (filterText) { 
+                    noHistoryMessage.innerHTML = `<i class="fas fa-search fa-3x text-gray-500 mb-3"></i><p class="text-gray-400 text-sm sm:text-base">Nessun risultato per "${filterText}".</p>`;
+                } else {
+                    noHistoryMessage.innerHTML = `<i class="fas fa-box-open fa-3x text-gray-500 mb-3"></i><p class="text-gray-400 text-sm sm:text-base">Nessuna consegna registrata.</p>`;
+                }
+            }
+            return;
+        }
+        if(noHistoryMessage) noHistoryMessage.classList.add('hidden');
+        if(downloadReportBtn) { downloadReportBtn.classList.remove('opacity-50', 'cursor-not-allowed'); downloadReportBtn.disabled = false; }
+        if(downloadCsvReportBtn) { downloadCsvReportBtn.classList.remove('opacity-50', 'cursor-not-allowed'); downloadCsvReportBtn.disabled = false; }
+        if(downloadPdfReportBtn) { downloadPdfReportBtn.classList.remove('opacity-50', 'cursor-not-allowed'); downloadPdfReportBtn.disabled = false; }
+
+
+        filteredHistory.forEach(round => {
+            const div = document.createElement('div');
+            div.className = 'p-3 bg-gray-500 rounded shadow text-xs sm:text-sm';
+            let customersArray = Array.isArray(round.customers) ? round.customers : [];
+            let customersHtml = customersArray.map(c => `<li class="ml-4"><i class="fas fa-user-tag fa-fw mr-1 text-gray-300"></i> <span class="break-all">${c}</span></li>`).join('');
+            div.innerHTML = `
+                <div class="flex justify-between items-center mb-1">
+                    <p class="font-semibold"><i class="fas fa-calendar-check fa-fw mr-1"></i> ${formatDate(round.startTime)}</p>
+                    <p class="text-gray-300">Durata: ${round.duration || 'N/A'}</p>
+                </div>
+                <p class="mb-1"><i class="fas fa-shipping-fast fa-fw mr-1"></i> Fattorino: <span class="break-all">${round.driverName || 'N/A'}</span></p>
+                <p class="font-medium">Clienti (${customersArray.length}):</p>
+                <ul class="list-none">${customersHtml}</ul>
+            `;
+            deliveryHistoryList.appendChild(div);
+        });
+    }
+
+    if(historySearchInput) historySearchInput.addEventListener('input', (e) => {
+        renderHistoryList(e.target.value);
+    });
+    
+    if(downloadReportBtn) downloadReportBtn.addEventListener('click', () => { // JSON
+        const filterText = historySearchInput.value;
+        const dataToExport = deliveryHistory.filter(round => {
+            if (!filterText) return true;
+            const searchText = filterText.toLowerCase();
+            const roundDate = round.startTime ? formatDate(round.startTime).toLowerCase() : "";
+            return (round.driverName ? round.driverName.toLowerCase().includes(searchText) : false) || 
+                   (Array.isArray(round.customers) && round.customers.some(c => c.toLowerCase().includes(searchText))) || 
+                   roundDate.includes(searchText);
+        });
+
+        if (dataToExport.length === 0) {
+            showToast('Nessuna consegna da esportare (controlla il filtro).', 'error');
+            return;
+        }
+        const dataStr = JSON.stringify(dataToExport, null, 2);
+        const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+        const exportFileDefaultName = `report_consegne_${new Date().toISOString().slice(0,10)}.json`;
+        const linkElement = document.createElement('a');
+        linkElement.setAttribute('href', dataUri);
+        linkElement.setAttribute('download', exportFileDefaultName);
+        linkElement.click();
+        linkElement.remove();
+        showToast('Report JSON scaricato.');
+    });
+
+    if(downloadCsvReportBtn) downloadCsvReportBtn.addEventListener('click', () => {
+        const filterText = historySearchInput.value;
+        const dataToExport = deliveryHistory.filter(round => {
+            if (!filterText) return true;
+            const searchText = filterText.toLowerCase();
+            const roundDate = round.startTime ? formatDate(round.startTime).toLowerCase() : "";
+            return (round.driverName ? round.driverName.toLowerCase().includes(searchText) : false) || 
+                   (Array.isArray(round.customers) && round.customers.some(c => c.toLowerCase().includes(searchText))) || 
+                   roundDate.includes(searchText);
+        });
+
+        if (dataToExport.length === 0) {
+            showToast('Nessuna consegna da esportare in CSV (controlla il filtro).', 'error');
+            return;
+        }
+
+        let csvContent = "ID Giro;Fattorino;Ora Inizio;Ora Fine;Durata;Clienti\n"; 
+        dataToExport.forEach(round => {
+            let clientiJoinable = []; 
+            if (Array.isArray(round.customers)) {
+                clientiJoinable = round.customers;
+            } else if (round.customers != null) { 
+                clientiJoinable = [String(round.customers)];
+            }
+            const clientiPerCsv = Array.isArray(clientiJoinable) ? clientiJoinable.join(", ") : ""; // Assicura che sia un array prima di join
+            
+            const roundId = round.id || "";
+            const driverName = round.driverName || "";
+            const startTimeFormatted = round.startTime ? formatDate(round.startTime) : "N/A";
+            const endTimeFormatted = round.endTime ? formatDate(round.endTime) : "N/A";
+            const duration = round.duration || "N/A";
+            
+            let csvRow = "";
+            csvRow += String(roundId) + ";";
+            csvRow += String(driverName) + ";";
+            csvRow += String(startTimeFormatted) + ";";
+            csvRow += String(endTimeFormatted) + ";";
+            csvRow += String(duration) + ";";
+            csvRow += "\"" + String(clientiPerCsv) + "\"\n";
+            csvContent += csvRow;
+        });
+
+        const dataUri = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csvContent);
+        const exportFileDefaultName = `report_consegne_${new Date().toISOString().slice(0,10)}.csv`;
+        const linkElement = document.createElement('a');
+        linkElement.setAttribute('href', dataUri);
+        linkElement.setAttribute('download', exportFileDefaultName);
+        linkElement.click();
+        linkElement.remove();
+        showToast('Report CSV scaricato.');
+    });
+
+    if(downloadPdfReportBtn) downloadPdfReportBtn.addEventListener('click', () => {
+        const { jsPDF } = window.jspdf;
+        if (!jsPDF) {
+            showToast('Libreria PDF non caricata.', 'error');
+            return;
+        }
+
+        const filterText = historySearchInput.value;
+        const dataToExport = deliveryHistory.filter(round => {
+            if (!filterText) return true;
+            const searchText = filterText.toLowerCase();
+            const roundDate = round.startTime ? formatDate(round.startTime).toLowerCase() : "";
+            return (round.driverName ? round.driverName.toLowerCase().includes(searchText) : false) || 
+                   (Array.isArray(round.customers) && round.customers.some(c => c.toLowerCase().includes(searchText))) || 
+                   roundDate.includes(searchText);
+        });
+        
+        if (dataToExport.length === 0) {
+            showToast('Nessuna consegna da esportare in PDF (controlla il filtro).', 'error');
+            return;
+        }
+
+        const doc = new jsPDF();
+        doc.setFontSize(18);
+        doc.text("Report Consegne", 14, 22);
+        doc.setFontSize(11);
+        doc.setTextColor(100);
+        doc.text(`Generato il: ${formatDate(new Date().toISOString())}`, 14, 30);
+        if (filterText) {
+            doc.text(`Filtro applicato: "${filterText}"`, 14, 36);
+        }
+
+        const tableColumn = ["Fattorino", "Ora Inizio", "Durata", "Clienti"];
+        const tableRows = [];
+
+        dataToExport.forEach(round => {
+            let customersArray = Array.isArray(round.customers) ? round.customers : (round.customers ? [String(round.customers)] : []);
+            const roundData = [
+                round.driverName || "N/A",
+                round.startTime ? formatDate(round.startTime) : "N/A",
+                round.duration || "N/A",
+                customersArray.join(",\n") 
+            ];
+            tableRows.push(roundData);
+        });
+
+        doc.autoTable({
+            head: [tableColumn],
+            body: tableRows,
+            startY: filterText ? 42 : 36,
+            headStyles: { fillColor: [74, 74, 74] }, 
+            styles: { fontSize: 8, cellPadding: 2 },
+            columnStyles: {
+                3: { cellWidth: 'auto' } 
+            }
+        });
+        
+        const exportFileDefaultName = `report_consegne_${new Date().toISOString().slice(0,10)}.pdf`;
+        doc.save(exportFileDefaultName);
+        showToast('Report PDF generato.');
+    });
 
 
     // --- STATISTICHE GIORNALIERE ---
-    // (Funzioni come nel tuo codice originale)
-    function updateDailyStats() { /* ... la tua funzione ... */ if (!dailyStatsContent || !noStatsToday || !statsTodayRounds || !statsTodayCustomers || !statsTodayTotalTime || !statsTodayAvgTimePerRound) return; const today = new Date().toISOString().slice(0, 10); const todayRounds = deliveryHistory.filter(round => round.startTime && round.startTime.startsWith(today) && round.status === 'concluso'); if (todayRounds.length === 0) { dailyStatsContent.classList.add('hidden'); noStatsToday.classList.remove('hidden'); return; } dailyStatsContent.classList.remove('hidden'); noStatsToday.classList.add('hidden'); statsTodayRounds.textContent = todayRounds.length; const totalCustomersToday = todayRounds.reduce((sum, round) => sum + (Array.isArray(round.customers) ? round.customers.length : 0), 0); statsTodayCustomers.textContent = totalCustomersToday; const totalTimeMsToday = todayRounds.reduce((sum, round) => { if (round.endTime && round.startTime) return sum + (new Date(round.endTime) - new Date(round.startTime)); return sum; }, 0); const totalTimeMinutesToday = Math.floor(totalTimeMsToday / (1000 * 60)); statsTodayTotalTime.textContent = formatDurationForDisplay(totalTimeMinutesToday); const avgTimePerRoundMinutes = todayRounds.length > 0 ? Math.round(totalTimeMinutesToday / todayRounds.length) : 0; statsTodayAvgTimePerRound.textContent = `${avgTimePerRoundMinutes} min`;}
+    function updateDailyStats() {
+        const today = new Date().toISOString().slice(0, 10);
+        const todayRounds = deliveryHistory.filter(round => round.startTime && round.startTime.startsWith(today) && round.status === 'concluso');
+        
+        if (!dailyStatsContent || !noStatsToday || !statsTodayRounds || !statsTodayCustomers || !statsTodayTotalTime || !statsTodayAvgTimePerRound) {
+            return;
+        }
+
+        if (todayRounds.length === 0) {
+            dailyStatsContent.classList.add('hidden');
+            noStatsToday.classList.remove('hidden');
+            return;
+        }
+        dailyStatsContent.classList.remove('hidden');
+        noStatsToday.classList.add('hidden');
+        statsTodayRounds.textContent = todayRounds.length;
+        const totalCustomersToday = todayRounds.reduce((sum, round) => sum + (Array.isArray(round.customers) ? round.customers.length : 0), 0);
+        statsTodayCustomers.textContent = totalCustomersToday;
+        const totalTimeMsToday = todayRounds.reduce((sum, round) => {
+            if (round.endTime && round.startTime) return sum + (new Date(round.endTime) - new Date(round.startTime));
+            return sum;
+        }, 0);
+        const totalTimeMinutesToday = Math.floor(totalTimeMsToday / (1000 * 60));
+        statsTodayTotalTime.textContent = formatDurationForDisplay(totalTimeMinutesToday);
+        const avgTimePerRoundMinutes = todayRounds.length > 0 ? Math.round(totalTimeMinutesToday / todayRounds.length) : 0;
+        statsTodayAvgTimePerRound.textContent = `${avgTimePerRoundMinutes} min`;
+    }
 
     // --- ADMIN PANEL ---
-    // (Funzioni come nel tuo codice originale)
-    function switchView(view) { /* ... la tua funzione ... */ if (!mainContent || !adminPanel) return; if (view === 'admin') { mainContent.classList.add('hidden'); adminPanel.classList.remove('hidden'); loadAdminData(); switchAdminTab('overview'); } else { mainContent.classList.remove('hidden'); adminPanel.classList.add('hidden'); } }
-    function switchAdminTab(tabName) { /* ... la tua funzione ... */  if (adminTabs) { adminTabs.forEach(t => t.classList.toggle('bg-gray-600', t.dataset.tab === tabName)); adminTabs.forEach(t => t.classList.toggle('text-white', t.dataset.tab === tabName)); } if (adminTabContents) adminTabContents.forEach(content => content.classList.add('hidden')); const activeTabContent = document.getElementById(`admin${tabName.charAt(0).toUpperCase() + tabName.slice(1)}Tab`); if (activeTabContent) activeTabContent.classList.remove('hidden'); if (tabName === 'overview') loadAdminOverviewData(); if (tabName === 'drivers') loadAdminDriverPerformanceData(); }
-    function loadAdminData() { /* ... la tua funzione ... */ if (!adminDriverFilter) return; const uniqueDrivers = [...new Set(deliveryHistory.map(r => r.driverName))].filter(Boolean); adminDriverFilter.innerHTML = '<option value="">Tutti i fattorini</option>'; uniqueDrivers.forEach(driver => { const option = document.createElement('option'); option.value = driver; option.textContent = driver; adminDriverFilter.appendChild(option); }); if (adminDateFilter) adminDateFilter.value = ''; loadAdminOverviewData(); }
-    function loadAdminOverviewData() { /* ... la tua funzione ... */ if (!adminDateFilter || !adminDriverFilter || !adminNoStats || !adminTotalRounds || !adminTotalCustomers || !adminTotalDeliveryTime || !adminActiveDeliveryInfo || !adminRecentDeliveriesList || !adminNoRecentDeliveries) return; const selectedDate = adminDateFilter.value; const selectedDriver = adminDriverFilter.value; let filteredHistory = deliveryHistory.filter(r => r.status === 'concluso'); if (selectedDate) filteredHistory = filteredHistory.filter(r => r.startTime && r.startTime.startsWith(selectedDate)); if (selectedDriver) filteredHistory = filteredHistory.filter(r => r.driverName === selectedDriver); adminNoStats.classList.toggle('hidden', filteredHistory.length > 0); adminTotalRounds.textContent = filteredHistory.length; adminTotalCustomers.textContent = filteredHistory.reduce((sum, r) => sum + (Array.isArray(r.customers) ? r.customers.length : 0), 0); adminTotalDeliveryTime.textContent = formatDurationForDisplay(filteredHistory.reduce((sum, r) => sum + (r.durationMinutes || 0), 0)); if (activeRound) { adminActiveDeliveryInfo.innerHTML = `<p>Fattorino: <span class="font-semibold break-all">${activeRound.driverName}</span></p><p>Iniziato il: <span class="font-semibold">${formatDate(activeRound.startTime)}</span></p><p>Clienti: <span class="font-semibold break-all">${(Array.isArray(activeRound.customers) ? activeRound.customers.join(', ') : '')}</span></p>`; } else { adminActiveDeliveryInfo.textContent = 'Nessuna consegna attualmente in corso.'; } adminRecentDeliveriesList.innerHTML = ''; const recentDeliveries = deliveryHistory.slice(0, 5); adminNoRecentDeliveries.classList.toggle('hidden', recentDeliveries.length > 0); recentDeliveries.forEach(r => { const li = document.createElement('li'); li.innerHTML = `<span class="font-semibold">${formatDate(r.startTime)}</span> - <span class="break-all">${r.driverName || 'N/A'}</span> (${(Array.isArray(r.customers) ? r.customers.length : 0)} clienti) - Durata: ${r.duration || 'N/A'}`; adminRecentDeliveriesList.appendChild(li); });}
-    function loadAdminDriverPerformanceData() { /* ... la tua funzione ... */ if (!adminDriverPerformanceList || !adminNoDriverData) return; adminDriverPerformanceList.innerHTML = ''; const drivers = {}; deliveryHistory.filter(r => r.status === 'concluso' && r.driverName).forEach(round => { if (!drivers[round.driverName]) drivers[round.driverName] = { rounds: 0, customers: 0, totalTimeMins: 0 }; drivers[round.driverName].rounds++; drivers[round.driverName].customers += (Array.isArray(round.customers) ? round.customers.length : 0); drivers[round.driverName].totalTimeMins += (round.durationMinutes || 0); }); adminNoDriverData.classList.toggle('hidden', Object.keys(drivers).length > 0); for (const driverName in drivers) { const data = drivers[driverName]; const avgTimePerRound = data.rounds > 0 ? Math.round(data.totalTimeMins / data.rounds) : 0; const avgCustomersPerRound = data.rounds > 0 ? (data.customers / data.rounds).toFixed(1) : 0; const div = document.createElement('div'); div.className = 'p-3 bg-gray-600 rounded text-xs sm:text-sm'; div.innerHTML = `<h4 class="font-semibold text-sm sm:text-base break-all">${driverName}</h4><ul class="list-disc list-inside space-y-0.5 mt-1"><li>Giri completati: ${data.rounds}</li><li>Clienti totali serviti: ${data.customers}</li><li>Tempo totale in consegna: ${formatDurationForDisplay(data.totalTimeMins)}</li><li>Tempo medio per giro: ${avgTimePerRound} min</li><li>Clienti medi per giro: ${avgCustomersPerRound}</li></ul>`; adminDriverPerformanceList.appendChild(div); } }
-
-
-    // === EVENT LISTENERS (ora con la logica completa delle funzioni) ===
-    if (saveDriverBtn && driverNameInput) {
-        saveDriverBtn.addEventListener('click', () => {
-            const name = driverNameInput.value.trim();
-            if (name) {
-                currentDriver = name;
-                updateDriverUI();
-                saveAllData();
-                showToast('Nome fattorino salvato!');
-            } else {
-                showToast('Inserisci un nome per il fattorino.', 'error');
+    if(openAdminModalLink) openAdminModalLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        if(adminLoginModal) adminLoginModal.classList.remove('hidden');
+        if(adminLoginError) adminLoginError.classList.add('hidden');
+        if(adminPasswordInput) {
+            adminPasswordInput.value = '';
+            adminPasswordInput.focus();
+        }
+    });
+    if(cancelAdminLoginBtn) cancelAdminLoginBtn.addEventListener('click', () => {
+        if(adminLoginModal) adminLoginModal.classList.add('hidden');
+    });
+    if(submitAdminLoginBtn) submitAdminLoginBtn.addEventListener('click', () => {
+        if (adminPasswordInput && adminPasswordInput.value === ADMIN_PASSWORD) {
+            if(adminLoginModal) adminLoginModal.classList.add('hidden');
+            switchView('admin');
+        } else {
+            if(adminLoginError) adminLoginError.classList.remove('hidden');
+            if(adminPasswordInput) {
+                adminPasswordInput.value = '';
+                adminPasswordInput.focus();
             }
-        });
+        }
+    });
+    function switchView(view) {
+        if (view === 'admin') {
+            if(mainContent) mainContent.classList.add('hidden');
+            if(adminPanel) adminPanel.classList.remove('hidden');
+            loadAdminData();
+            switchAdminTab('overview');
+        } else { 
+            if(mainContent) mainContent.classList.remove('hidden');
+            if(adminPanel) adminPanel.classList.add('hidden');
+        }
     }
-
-    if (editDriverBtn && driverNameInput && driverInputContainer && driverDisplayContainer) {
-        editDriverBtn.addEventListener('click', () => {
-            driverNameInput.value = currentDriver;
-            driverInputContainer.classList.remove('hidden');
-            driverDisplayContainer.classList.add('hidden');
-            driverDisplayContainer.classList.remove('flex');
-            driverNameInput.focus();
-        });
-    }
+    if(backToMainViewBtn) backToMainViewBtn.addEventListener('click', () => switchView('main'));
+    if(adminLogoutBtn) adminLogoutBtn.addEventListener('click', () => switchView('main'));
     
-    if (addCustomerBtn) {
-        addCustomerBtn.addEventListener('click', () => {
-            customers.push('');
-            renderCustomerInputs();
-            saveAllData();
-            if (customerListContainer) {
-                const allCustomerInputs = customerListContainer.querySelectorAll('.customer-input');
-                if (allCustomerInputs.length > 0) {
-                    allCustomerInputs[allCustomerInputs.length - 1].focus();
-                }
-            }
+    if(adminTabs) adminTabs.forEach(tab => {
+        tab.addEventListener('click', (e) => {
+            e.preventDefault();
+            switchAdminTab(e.currentTarget.dataset.tab);
         });
+    });
+    function switchAdminTab(tabName) {
+        if(adminTabs) adminTabs.forEach(t => t.classList.toggle('bg-gray-600', t.dataset.tab === tabName));
+        if(adminTabs) adminTabs.forEach(t => t.classList.toggle('text-white', t.dataset.tab === tabName));
+        if(adminTabContents) adminTabContents.forEach(content => content.classList.add('hidden'));
+        const activeTabContent = document.getElementById(`admin${tabName.charAt(0).toUpperCase() + tabName.slice(1)}Tab`);
+        if (activeTabContent) activeTabContent.classList.remove('hidden');
+        if (tabName === 'overview') loadAdminOverviewData();
+        if (tabName === 'drivers') loadAdminDriverPerformanceData();
     }
-
-    if (startRoundBtn) {
-        startRoundBtn.addEventListener('click', () => {
-            if (!currentDriver) {
-                showToast('Inserisci il nome del fattorino.', 'error');
-                if (driverNameInput) driverNameInput.focus();
-                return;
-            }
-            const validCustomers = customers.map(c => c.trim()).filter(c => c !== '');
-            if (validCustomers.length === 0) {
-                showToast('Inserisci almeno un cliente.', 'error');
-                if (customerListContainer) {
-                    const firstEmptyCustomerInput = Array.from(customerListContainer.querySelectorAll('.customer-input')).find(input => !input.value.trim());
-                    if (firstEmptyCustomerInput) firstEmptyCustomerInput.focus();
-                    else if (customerListContainer.querySelector('.customer-input')) customerListContainer.querySelector('.customer-input').focus();
-                }
-                return;
-            }
-
-            activeRound = {
-                id: `round_${new Date().getTime()}`,
-                driverName: currentDriver,
-                customers: validCustomers,
-                startTime: new Date().toISOString(),
-                status: 'attivo'
-            };
-
-            customers = ["", ""]; 
-            renderCustomerInputs(); 
-            updateActiveRoundUI();
-            saveAllData();
-            updateDailyStats(); 
-
-            const startTimeFormatted = formatDate(activeRound.startTime);
-            let messageContent = `INIZIO GIRO CONSEGNE\nFattorino: ${activeRound.driverName}\nData e Ora Partenza: ${startTimeFormatted}\nClienti da servire:\n`;
-            validCustomers.forEach(c => messageContent += `- ${c}\n`);
-            messageContent = messageContent.trim();
-            
-            const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(messageContent)}`;
-            window.open(whatsappUrl, '_blank');
-            showInteractiveToast('Giro iniziato! WhatsApp si apre...', messageContent);
-        });
-    }
-
-    if (endRoundBtn) {
-        endRoundBtn.addEventListener('click', () => {
-            if (!activeRound || isEditingActiveCustomers) return;
-
-            activeRound.endTime = new Date().toISOString();
-            activeRound.status = 'concluso';
-            const durationMs = new Date(activeRound.endTime) - new Date(activeRound.startTime);
-            activeRound.duration = formatDuration(durationMs);
-            activeRound.durationMinutes = Math.floor(durationMs / (1000 * 60));
-
-            deliveryHistory.unshift({...activeRound}); 
-            
-            const startTimeFormatted = formatDate(activeRound.startTime);
-            const endTimeFormatted = formatDate(activeRound.endTime);
-            let messageContent = `RIEPILOGO GIRO CONSEGNE\nFattorino: ${activeRound.driverName}\nData e Ora Partenza: ${startTimeFormatted}\nData e Ora Fine: ${endTimeFormatted}\nDurata Totale: ${activeRound.duration}\nClienti serviti:\n`;
-            (activeRound.customers || []).forEach(c => messageContent += `- ${c}\n`);
-            messageContent = messageContent.trim();
-
-            activeRound = null;
-            updateActiveRoundUI();
-            renderHistoryList();
-            saveAllData();
-            updateDailyStats();
-            
-            const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(messageContent)}`;
-            window.open(whatsappUrl, '_blank');
-            showInteractiveToast('Giro concluso! WhatsApp si apre...', messageContent);
-        });
-    }
-
-    if (historySearchInput) {
-        historySearchInput.addEventListener('input', (e) => {
-            renderHistoryList(e.target.value);
-        });
-    }
-    
-    if (downloadReportBtn) {
-        downloadReportBtn.addEventListener('click', () => { // JSON
-            const filterText = historySearchInput ? historySearchInput.value : '';
-            const dataToExport = deliveryHistory.filter(round => {
-                if (!filterText) return true;
-                const searchText = filterText.toLowerCase();
-                const roundDate = round.startTime ? formatDate(round.startTime).toLowerCase() : "";
-                return (round.driverName ? round.driverName.toLowerCase().includes(searchText) : false) || 
-                       (Array.isArray(round.customers) && round.customers.some(c => c.toLowerCase().includes(searchText))) || 
-                       roundDate.includes(searchText);
+    function loadAdminData() {
+        const uniqueDrivers = [...new Set(deliveryHistory.map(r => r.driverName))].filter(Boolean); 
+        if(adminDriverFilter) {
+            adminDriverFilter.innerHTML = '<option value="">Tutti i fattorini</option>';
+            uniqueDrivers.forEach(driver => {
+                const option = document.createElement('option');
+                option.value = driver;
+                option.textContent = driver;
+                adminDriverFilter.appendChild(option);
             });
-
-            if (dataToExport.length === 0) {
-                showToast('Nessuna consegna da esportare (controlla il filtro).', 'error');
-                return;
-            }
-            const dataStr = JSON.stringify(dataToExport, null, 2);
-            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-            const exportFileDefaultName = `report_consegne_${new Date().toISOString().slice(0,10)}.json`;
-            const linkElement = document.createElement('a');
-            linkElement.setAttribute('href', dataUri);
-            linkElement.setAttribute('download', exportFileDefaultName);
-            linkElement.click();
-            linkElement.remove();
-            showToast('Report JSON scaricato.');
-        });
+        }
+        if(adminDateFilter) adminDateFilter.value = ''; 
+        loadAdminOverviewData();
     }
+    if(applyAdminFiltersBtn) applyAdminFiltersBtn.addEventListener('click', loadAdminOverviewData);
     
-    if (downloadCsvReportBtn) {
-        downloadCsvReportBtn.addEventListener('click', () => {
-            const filterText = historySearchInput ? historySearchInput.value : '';
-            const dataToExport = deliveryHistory.filter(round => {
-                if (!filterText) return true;
-                const searchText = filterText.toLowerCase();
-                const roundDate = round.startTime ? formatDate(round.startTime).toLowerCase() : "";
-                return (round.driverName ? round.driverName.toLowerCase().includes(searchText) : false) || 
-                       (Array.isArray(round.customers) && round.customers.some(c => c.toLowerCase().includes(searchText))) || 
-                       roundDate.includes(searchText);
-            });
+    function loadAdminOverviewData() {
+        const selectedDate = adminDateFilter ? adminDateFilter.value : "";
+        const selectedDriver = adminDriverFilter ? adminDriverFilter.value : "";
+        let filteredHistory = deliveryHistory.filter(r => r.status === 'concluso');
+        if (selectedDate) filteredHistory = filteredHistory.filter(r => r.startTime && r.startTime.startsWith(selectedDate));
+        if (selectedDriver) filteredHistory = filteredHistory.filter(r => r.driverName === selectedDriver);
+        
+        if(adminNoStats) adminNoStats.classList.toggle('hidden', filteredHistory.length > 0);
+        if(adminTotalRounds) adminTotalRounds.textContent = filteredHistory.length;
+        if(adminTotalCustomers) adminTotalCustomers.textContent = filteredHistory.reduce((sum, r) => sum + (Array.isArray(r.customers) ? r.customers.length : 0), 0);
+        if(adminTotalDeliveryTime) adminTotalDeliveryTime.textContent = formatDurationForDisplay(filteredHistory.reduce((sum, r) => sum + (r.durationMinutes || 0), 0));
 
-            if (dataToExport.length === 0) {
-                showToast('Nessuna consegna da esportare in CSV (controlla il filtro).', 'error');
-                return;
-            }
-
-            let csvContent = "ID Giro;Fattorino;Ora Inizio;Ora Fine;Durata;Clienti\n"; 
-            dataToExport.forEach(round => {
-                let clientiJoinable = []; 
-                if (Array.isArray(round.customers)) {
-                    clientiJoinable = round.customers;
-                } else if (round.customers) { 
-                    clientiJoinable = [String(round.customers)];
-                }
-                const clientiPerCsv = clientiJoinable.join(", "); 
-                
-                const roundId = round.id || "";
-                const driverName = round.driverName || "";
-                const startTimeFormatted = round.startTime ? formatDate(round.startTime) : "N/A";
-                const endTimeFormatted = round.endTime ? formatDate(round.endTime) : "N/A";
-                const duration = round.duration || "N/A";
-                
-                csvContent += `${String(roundId)};${String(driverName)};${String(startTimeFormatted)};${String(endTimeFormatted)};${String(duration)};"${String(clientiPerCsv)}"\n`;
-            });
-
-            const dataUri = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csvContent);
-            const exportFileDefaultName = `report_consegne_${new Date().toISOString().slice(0,10)}.csv`;
-            const linkElement = document.createElement('a');
-            linkElement.setAttribute('href', dataUri);
-            linkElement.setAttribute('download', exportFileDefaultName);
-            linkElement.click();
-            linkElement.remove();
-            showToast('Report CSV scaricato.');
+        if (activeRound) {
+            if(adminActiveDeliveryInfo) adminActiveDeliveryInfo.innerHTML = `<p>Fattorino: <span class="font-semibold break-all">${activeRound.driverName}</span></p><p>Iniziato il: <span class="font-semibold">${formatDate(activeRound.startTime)}</span></p><p>Clienti: <span class="font-semibold break-all">${(Array.isArray(activeRound.customers) ? activeRound.customers.join(', ') : '')}</span></p>`;
+        } else {
+            if(adminActiveDeliveryInfo) adminActiveDeliveryInfo.textContent = 'Nessuna consegna attualmente in corso.';
+        }
+        if(adminRecentDeliveriesList) adminRecentDeliveriesList.innerHTML = '';
+        const recentDeliveries = deliveryHistory.slice(0, 5);
+        if(adminNoRecentDeliveries) adminNoRecentDeliveries.classList.toggle('hidden', recentDeliveries.length > 0);
+        recentDeliveries.forEach(r => {
+            const li = document.createElement('li');
+            li.innerHTML = `<span class="font-semibold">${formatDate(r.startTime)}</span> - <span class="break-all">${r.driverName || 'N/A'}</span> (${(Array.isArray(r.customers) ? r.customers.length : 0)} clienti) - Durata: ${r.duration || 'N/A'}`;
+            if(adminRecentDeliveriesList) adminRecentDeliveriesList.appendChild(li);
         });
     }
-
-    if (downloadPdfReportBtn) {
-        downloadPdfReportBtn.addEventListener('click', () => {
-            try {
-                if (typeof window.jspdf === 'undefined' || typeof window.jspdf.jsPDF === 'undefined') {
-                    throw new Error('Libreria jsPDF non caricata.');
-                }
-                const { jsPDF } = window.jspdf; // o window.jspdf.jsPDF a seconda di come è esposto
-                const doc = new jsPDF();
-                
-                if (typeof doc.autoTable !== 'function') {
-                    throw new Error('Plugin jsPDF-AutoTable non caricato.');
-                }
-
-                const filterText = historySearchInput ? historySearchInput.value : '';
-                const dataToExport = deliveryHistory.filter(round => {
-                    if (!filterText) return true;
-                    const searchText = filterText.toLowerCase();
-                    const roundDate = round.startTime ? formatDate(round.startTime).toLowerCase() : "";
-                    return (round.driverName ? round.driverName.toLowerCase().includes(searchText) : false) || 
-                           (Array.isArray(round.customers) && round.customers.some(c => c.toLowerCase().includes(searchText))) || 
-                           roundDate.includes(searchText);
-                });
-                
-                if (dataToExport.length === 0) {
-                    showToast('Nessuna consegna da esportare in PDF (controlla il filtro).', 'error');
-                    return;
-                }
-
-                doc.setFontSize(18);
-                doc.text("Report Consegne", 14, 22);
-                doc.setFontSize(11);
-                doc.setTextColor(100);
-                doc.text(`Generato il: ${formatDate(new Date().toISOString())}`, 14, 30);
-                if (filterText) {
-                    doc.text(`Filtro applicato: "${filterText}"`, 14, 36);
-                }
-
-                const tableColumn = ["Fattorino", "Ora Inizio", "Durata", "Clienti"];
-                const tableRows = [];
-
-                dataToExport.forEach(round => {
-                    let customersArray = Array.isArray(round.customers) ? round.customers : (round.customers ? [String(round.customers)] : []);
-                    const roundData = [
-                        round.driverName || "N/A",
-                        round.startTime ? formatDate(round.startTime) : "N/A",
-                        round.duration || "N/A",
-                        customersArray.join(",\n") 
-                    ];
-                    tableRows.push(roundData);
-                });
-
-                doc.autoTable({
-                    head: [tableColumn],
-                    body: tableRows,
-                    startY: filterText ? 42 : 36,
-                    headStyles: { fillColor: [74, 74, 74] }, 
-                    styles: { fontSize: 8, cellPadding: 2 },
-                    columnStyles: {
-                        3: { cellWidth: 'auto' } 
-                    }
-                });
-                
-                const exportFileDefaultName = `report_consegne_${new Date().toISOString().slice(0,10)}.pdf`;
-                doc.save(exportFileDefaultName);
-                showToast('Report PDF generato.');
-            } catch(e) {
-                console.error("Errore generazione PDF:", e);
-                showToast(`Errore PDF: ${e.message}`, 'error');
-            }
+    function loadAdminDriverPerformanceData() {
+        if(adminDriverPerformanceList) adminDriverPerformanceList.innerHTML = '';
+        const drivers = {}; 
+        deliveryHistory.filter(r => r.status === 'concluso' && r.driverName).forEach(round => { 
+            if (!drivers[round.driverName]) drivers[round.driverName] = { rounds: 0, customers: 0, totalTimeMins: 0 };
+            drivers[round.driverName].rounds++;
+            drivers[round.driverName].customers += (Array.isArray(round.customers) ? round.customers.length : 0);
+            drivers[round.driverName].totalTimeMins += (round.durationMinutes || 0);
         });
+        if(adminNoDriverData) adminNoDriverData.classList.toggle('hidden', Object.keys(drivers).length > 0);
+        for (const driverName in drivers) {
+            const data = drivers[driverName];
+            const avgTimePerRound = data.rounds > 0 ? Math.round(data.totalTimeMins / data.rounds) : 0;
+            const avgCustomersPerRound = data.rounds > 0 ? (data.customers / data.rounds).toFixed(1) : 0;
+            const div = document.createElement('div');
+            div.className = 'p-3 bg-gray-600 rounded text-xs sm:text-sm';
+            div.innerHTML = `<h4 class="font-semibold text-sm sm:text-base break-all">${driverName}</h4><ul class="list-disc list-inside space-y-0.5 mt-1"><li>Giri completati: ${data.rounds}</li><li>Clienti totali serviti: ${data.customers}</li><li>Tempo totale in consegna: ${formatDurationForDisplay(data.totalTimeMins)}</li><li>Tempo medio per giro: ${avgTimePerRound} min</li><li>Clienti medi per giro: ${avgCustomersPerRound}</li></ul>`;
+            if(adminDriverPerformanceList) adminDriverPerformanceList.appendChild(div);
+        }
     }
-
-    if (themeToggleBtn) {
-        themeToggleBtn.addEventListener('click', toggleTheme);
-    }
-
-    if (exportAllDataBtn) {
-        exportAllDataBtn.addEventListener('click', () => {
-            const dataToExport = {
-                driverName: currentDriver,
-                activeRound: activeRound,
-                deliveryHistory: deliveryHistory,
-                customers: customers 
-            };
-            const dataStr = JSON.stringify(dataToExport, null, 2);
-            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-            const exportFileDefaultName = `delivery_manager_backup_${new Date().toISOString().slice(0,10)}.json`;
-            
-            const linkElement = document.createElement('a');
-            linkElement.setAttribute('href', dataUri);
-            linkElement.setAttribute('download', exportFileDefaultName);
-            linkElement.click();
-            linkElement.remove();
-            showToast('Dati esportati con successo!');
-        });
-    }
-
-    if (importFileInput) {
-        importFileInput.addEventListener('change', (event) => {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    importedFileContent = e.target.result;
-                    if (importAllDataBtn) importAllDataBtn.disabled = false;
-                    showToast(`File "${file.name}" pronto per l'importazione.`, 'success');
-                };
-                reader.onerror = () => {
-                    showToast('Errore nella lettura del file.', 'error');
-                    importedFileContent = null;
-                    if (importAllDataBtn) importAllDataBtn.disabled = true;
-                }
-                reader.readAsText(file);
-            } else {
-                importedFileContent = null;
-                if (importAllDataBtn) importAllDataBtn.disabled = true;
-            }
-        });
-    }
-
-    if (importAllDataBtn) {
-        importAllDataBtn.addEventListener('click', () => {
-            if (!importedFileContent) {
-                showToast('Nessun file selezionato per l'importazione.', 'error');
-                return;
-            }
-            try {
-                const importedData = JSON.parse(importedFileContent);
-                if (typeof importedData.driverName !== 'undefined' &&
-                    typeof importedData.activeRound !== 'undefined' && 
-                    Array.isArray(importedData.deliveryHistory) &&
-                    Array.isArray(importedData.customers) ) {
-
-                    currentDriver = importedData.driverName || '';
-                    activeRound = importedData.activeRound || null;
-                    deliveryHistory = importedData.deliveryHistory || [];
-                    customers = importedData.customers || [];
-
-                    saveAllData();
-                    loadAllData(); 
-                    showToast('Dati importati con successo!');
-                } else {
-                    showToast('File di backup non valido o corrotto.', 'error');
-                }
-            } catch (error) {
-                console.error("Errore importazione dati:", error);
-                showToast('Errore durante l\'importazione dei dati. Assicurati che il file sia JSON valido.', 'error');
-            }
-            importedFileContent = null;
-            if (importAllDataBtn) importAllDataBtn.disabled = true;
-            if (importFileInput) importFileInput.value = ''; 
-        });
-    }
-    
-    if (toggleEditActiveCustomersBtn) { toggleEditActiveCustomersBtn.addEventListener('click', () => { if (activeRound) enterEditActiveCustomersMode(); }); }
-    if (saveActiveCustomerChangesBtn) { saveActiveCustomerChangesBtn.addEventListener('click', () => { if (activeRound) { const updatedCustomers = tempActiveCustomers.map(c => c.trim()).filter(c => c !== ""); if (updatedCustomers.length === 0) { showToast('Devi avere almeno un cliente nel giro attivo.', 'error'); return; } activeRound.customers = updatedCustomers; saveAllData(); renderActiveCustomerList(); exitEditActiveCustomersMode(); showToast('Clienti del giro attivo aggiornati.', 'success'); } }); }
-    if (cancelActiveCustomerChangesBtn) { cancelActiveCustomerChangesBtn.addEventListener('click', () => { exitEditActiveCustomersMode(); renderActiveCustomerList(); }); }
-
-    // Admin Panel Listeners
-    if (openAdminModalLink) { openAdminModalLink.addEventListener('click', (e) => { e.preventDefault(); if(adminLoginModal) adminLoginModal.classList.remove('hidden'); if(adminLoginError) adminLoginError.classList.add('hidden'); if(adminPasswordInput) {adminPasswordInput.value = ''; adminPasswordInput.focus();} }); }
-    if (cancelAdminLoginBtn && adminLoginModal) { cancelAdminLoginBtn.addEventListener('click', () => adminLoginModal.classList.add('hidden')); }
-    if (submitAdminLoginBtn && adminPasswordInput && adminLoginModal && adminLoginError) { submitAdminLoginBtn.addEventListener('click', () => { if (adminPasswordInput.value === ADMIN_PASSWORD) { adminLoginModal.classList.add('hidden'); switchView('admin'); } else { adminLoginError.classList.remove('hidden'); adminPasswordInput.value = ''; adminPasswordInput.focus(); } }); }
-    if (backToMainViewBtn) { backToMainViewBtn.addEventListener('click', () => switchView('main')); }
-    if (adminLogoutBtn) { adminLogoutBtn.addEventListener('click', () => switchView('main')); }
-    if (adminTabs) { adminTabs.forEach(tab => { tab.addEventListener('click', (e) => { e.preventDefault(); switchAdminTab(e.currentTarget.dataset.tab); }); }); }
-    if (applyAdminFiltersBtn) { applyAdminFiltersBtn.addEventListener('click', loadAdminOverviewData); }
-
 
     // --- INIZIALIZZAZIONE ---
-    try {
-        console.log("DEBUG: Inizio blocco inizializzazione try-catch.");
-        loadAllData(); 
-        if (customers.length === 0 && !activeRound) {
-            customers = ["", ""];
-            if (typeof renderCustomerInputs === 'function') {
-                renderCustomerInputs(); 
-            } else {
-                console.error("DEBUG: renderCustomerInputs non definita durante inizializzazione clienti default.");
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log("DOMContentLoaded event fired"); 
+        try {
+            console.log("Attempting to load all data and initialize UI..."); 
+            loadAllData(); 
+            if (customers.length === 0 && !activeRound) {
+                customers = ["", ""];
+            }
+            renderCustomerInputs(); 
+            console.log("Initial UI rendering complete."); 
+
+            console.log("Attaching event listeners..."); 
+        } catch (e) {
+            console.error("Errore critico durante l'inizializzazione:", e);
+            const body = document.querySelector('body');
+            if (body) {
+                const errorDiv = document.createElement('div');
+                errorDiv.style.color = 'red';
+                errorDiv.style.backgroundColor = 'black';
+                errorDiv.style.padding = '20px';
+                errorDiv.style.position = 'fixed';
+                errorDiv.style.top = '0';
+                errorDiv.style.left = '0';
+                errorDiv.style.width = '100%';
+                errorDiv.style.zIndex = '9999';
+                errorDiv.textContent = 'ERRORE CRITICO: Impossibile inizializzare l\'applicazione. Controllare la console per dettagli. Errore: ' + e.message;
+                body.prepend(errorDiv); 
             }
         }
-        console.log("DEBUG: Fine blocco inizializzazione try-catch.");
-    } catch (e) {
-        console.error("ERRORE CRITICO DURANTE L'INIZIALIZZAZIONE:", e);
-        const body = document.querySelector('body');
-        if (body) {
-            const errorDiv = document.createElement('div');
-            errorDiv.style.color = 'red'; errorDiv.style.backgroundColor = 'black';
-            errorDiv.style.padding = '20px'; errorDiv.style.position = 'fixed';
-            errorDiv.style.top = '0'; errorDiv.style.left = '0'; errorDiv.style.width = '100%';
-            errorDiv.style.zIndex = '9999';
-            errorDiv.textContent = 'ERRORE CRITICO: Impossibile inizializzare l\'applicazione. Controllare la console per dettagli.';
-            body.prepend(errorDiv);
-        }
-    }
-    console.log("DEBUG: Script principale terminato.");
-});
+        console.log("DOMContentLoaded event finished."); 
+    });
+    console.log("Script end"); 
+
 </script>
 </body>
 </html>
