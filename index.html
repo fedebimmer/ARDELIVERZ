@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A.R. AUTO - Delivery Manager</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+  <header>
+    <h1>A.R. AUTO - Delivery Manager</h1>
+    <p class="subtitle">Prodotto da Federico Battistella</p>
+    <a href="#" id="admin-link">Accedi alla Dashboard Admin</a>
+  </header>
+
+  <main>
+    <section id="driver-section" class="card">
+      <h2>Fattorino</h2>
+      <div id="driver-form">
+        <input type="text" id="driver-name" placeholder="Nome Fattorino">
+        <button id="save-driver">Salva</button>
+      </div>
+      <div id="driver-saved" class="hidden">
+        <span id="driver-display"></span>
+        <button id="edit-driver">Modifica</button>
+      </div>
+    </section>
+
+    <section id="clients-section" class="card">
+      <h2>Inserimento Clienti</h2>
+      <div id="clients-list">
+        <input type="text" class="client-input" placeholder="Cliente 1">
+        <input type="text" class="client-input" placeholder="Cliente 2">
+      </div>
+      <button id="add-client">+ Aggiungi Cliente</button>
+      <button id="start-delivery" class="primary">Inizia Giro</button>
+    </section>
+
+    <section id="active-run" class="card hidden">
+      <h2>Giro Consegne Attivo</h2>
+      <p id="run-info"></p>
+      <ul id="run-clients"></ul>
+      <button id="end-delivery" class="danger">Giro Concluso</button>
+    </section>
+
+    <section id="history-section" class="card">
+      <h2>Cronologia Consegne</h2>
+      <ul id="history-list"></ul>
+    </section>
+  </main>
+
+  <div id="toast" class="hidden"></div>
+
+<script src="script.js"></script>
+</div>
+</body>
+</html>
