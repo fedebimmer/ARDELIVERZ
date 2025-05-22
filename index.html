@@ -128,11 +128,11 @@
         .btn:active {
             transform: scale(0.98);
         }
-        .btn svg, .btn .emoji-icon { /* Supporto per SVG e emoji come icone */
+        .btn svg, .btn .emoji-icon { 
             width: 1.25rem; 
             height: 1.25rem; 
             margin-right: 0.5rem;
-            display: inline-block; /* Assicura che l'emoji sia allineato */
+            display: inline-block; 
         }
 
         .btn-primary { background-color: var(--green-primary); }
@@ -199,19 +199,40 @@
         #clientiDaServireLista {
             list-style-type: none;
             padding-left: 0;
-            max-height: 150px;
+            max-height: 200px; /* Aumentata altezza per più clienti */
             overflow-y: auto;
             background-color: var(--bg-input);
             border-radius: 0.375rem;
             padding: 0.75rem;
         }
         #clientiDaServireLista li {
-            padding: 0.375rem 0;
+            padding: 0.5rem 0.25rem; /* Aggiunto padding laterale */
             border-bottom: 1px solid var(--border-color);
+            display: flex; /* Per allineare checkbox e label */
+            align-items: center;
         }
         #clientiDaServireLista li:last-child {
             border-bottom: none;
         }
+        #clientiDaServireLista input[type="checkbox"] {
+            margin-right: 0.75rem;
+            min-width: 18px; /* Dimensione minima checkbox */
+            min-height: 18px;
+            accent-color: var(--green-primary); /* Colore spunta */
+        }
+        #clientiDaServireLista label {
+            flex-grow: 1;
+        }
+        #clientiDaServireLista .cliente-consegnato-label span.nome-cliente {
+            text-decoration: line-through;
+            color: var(--text-secondary);
+        }
+        #clientiDaServireLista .orario-consegna {
+            font-size: 0.8em;
+            color: var(--green-primary);
+            margin-left: 0.5em;
+        }
+
 
         /* Notifiche Toast */
         .toast-notification {
@@ -291,7 +312,17 @@
             background-color: transparent;
             border-bottom: none;
             margin-bottom: 0;
+            /* Reset per evitare conflitti con stili #clientiDaServireLista li */
+            display: list-item; 
+            align-items: normal;
         }
+        .history-item-client-list .cliente-consegnato {
+            color: var(--green-primary);
+        }
+        .history-item-client-list .cliente-non-consegnato {
+            color: var(--text-secondary);
+        }
+
 
         /* Loading Spinner */
         .loader {
@@ -301,7 +332,7 @@
             width: 24px;
             height: 24px;
             animation: spin 1s linear infinite;
-            margin: 0.5rem auto; /* Centra lo spinner */
+            margin: 0.5rem auto; 
         }
         @keyframes spin {
             0% { transform: rotate(0deg); }
@@ -351,7 +382,7 @@
             justify-content: space-around;
         }
         .modal-buttons .btn {
-            width: 45%; /* Due bottoni affiancati */
+            width: 45%; 
         }
 
         /* Utility */
@@ -491,7 +522,6 @@
 
         const toastNotification = document.getElementById('toastNotification');
 
-        // Modal Elements
         const customModal = document.getElementById('customModal');
         const modalTitle = document.getElementById('modalTitle');
         const modalMessage = document.getElementById('modalMessage');
@@ -501,7 +531,7 @@
 
 
         const WHATSAPP_NUMBER = '393939393799'; 
-        const GEMINI_API_KEY = ''; // Lasciare vuoto, verrà gestito dall'ambiente Canvas
+        const GEMINI_API_KEY = ''; 
 
         let cronometroInterval;
         let clientInputCount = 0;
@@ -509,8 +539,7 @@
         const playIconSVG = `<svg fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path></svg>`;
         const stopIconSVG = `<svg fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 001 1h4a1 1 0 001-1V8a1 1 0 00-1-1H8z" clip-rule="evenodd"></path></svg>`;
 
-        // Funzioni Helper
-        function mostraNotifica(messaggio, tipo = 'successo') { // Tipi: successo, errore, info
+        function mostraNotifica(messaggio, tipo = 'successo') { 
             toastNotification.textContent = messaggio;
             toastNotification.className = 'toast-notification show';
             if (tipo === 'successo') {
@@ -550,8 +579,15 @@
                 hour: '2-digit', minute: '2-digit' 
             });
         }
+         function formatTimeOnlyForDisplay(timestamp) {
+            if (!timestamp) return '';
+            const date = new Date(timestamp);
+            return date.toLocaleTimeString('it-IT', {
+                hour: '2-digit', minute: '2-digit'
+            });
+        }
 
-        // Custom Modal Functions
+
         function showModal(title, message, onConfirm) {
             modalTitle.textContent = title;
             modalMessage.textContent = message;
@@ -572,14 +608,12 @@
         });
 
         modalCancelBtn.addEventListener('click', hideModal);
-        customModal.addEventListener('click', (event) => { // Chiudi se si clicca sull'overlay
+        customModal.addEventListener('click', (event) => { 
             if (event.target === customModal) {
                 hideModal();
             }
         });
 
-
-        // Gestione Nome Fattorino
         function caricaNomeFattorino() {
             const nomeSalvato = localStorage.getItem('nomeFattorino');
             if (nomeSalvato) {
@@ -616,9 +650,8 @@
             nomeFattorinoInput.focus();
         });
 
-        // Gestione Clienti
         function aggiungiCampoCliente(nomeCliente = '', placeholderText = `Cliente ${clientInputCount + 1}`) {
-            clientInputCount++; // Incrementa qui per mantenere il conteggio corretto per i placeholder futuri
+            clientInputCount++; 
             const div = document.createElement('div');
             div.classList.add('client-input-item');
             div.innerHTML = `
@@ -630,19 +663,17 @@
             listaInputClienti.appendChild(div);
             div.querySelector('.btn-remove-client').addEventListener('click', () => {
                 div.remove();
-                // Non decremento clientInputCount qui per semplicità,
-                // la numerazione dei placeholder si aggiusta al prossimo inserimento manuale.
-                // Se si volesse una rinumerazione dinamica, sarebbe più complesso.
             });
         }
         
         function aggiornaCampiCliente(clientiOrdinati) {
-            listaInputClienti.innerHTML = ''; // Svuota i campi esistenti
-            clientInputCount = 0; // Resetta il contatore per i placeholder
+            listaInputClienti.innerHTML = ''; 
+            clientInputCount = 0; 
             clientiOrdinati.forEach((cliente, index) => {
-                aggiungiCampoCliente(cliente, `Cliente ${index + 1} (ottimizzato)`);
+                // Se cliente è una stringa (da ottimizzazione), o un oggetto (da caricamento giro esistente)
+                const nome = typeof cliente === 'string' ? cliente : cliente.nome;
+                aggiungiCampoCliente(nome, `Cliente ${index + 1} (ottimizzato)`);
             });
-            // Se la lista ottimizzata è vuota e vogliamo comunque un campo, aggiungilo
             if (clientiOrdinati.length === 0) {
                  aggiungiCampoCliente();
             }
@@ -668,7 +699,6 @@
             return clienti;
         }
         
-        // Funzione per chiamare Gemini API
         async function chiamaGeminiPerOttimizzazione(clienti) {
             loaderOttimizzazione.classList.remove('hidden');
             btnOttimizzaPercorso.disabled = true;
@@ -693,7 +723,6 @@
                 }
             };
             
-            // L'API Key è gestita dall'ambiente Canvas se lasciata vuota
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
 
             try {
@@ -715,7 +744,7 @@
                     result.candidates[0].content.parts.length > 0) {
                     
                     const textResponse = result.candidates[0].content.parts[0].text;
-                    const parsedJson = JSON.parse(textResponse); // Gemini restituisce il JSON come stringa
+                    const parsedJson = JSON.parse(textResponse); 
                     
                     if (parsedJson && parsedJson.clienti_ottimizzati) {
                         return parsedJson.clienti_ottimizzati;
@@ -729,7 +758,7 @@
             } catch (error) {
                 console.error('Errore durante la chiamata a Gemini:', error);
                 mostraNotifica(`Errore ottimizzazione: ${error.message}`, 'errore');
-                return null; // Restituisce null in caso di errore
+                return null; 
             } finally {
                 loaderOttimizzazione.classList.add('hidden');
                 btnOttimizzaPercorso.disabled = false;
@@ -749,13 +778,9 @@
             if (clientiOttimizzati) {
                 aggiornaCampiCliente(clientiOttimizzati);
                 mostraNotifica('Percorso ottimizzato da Gemini! Controlla la nuova lista.', 'successo');
-            } else {
-                // La notifica di errore è già gestita in chiamaGeminiPerOttimizzazione
             }
         });
 
-
-        // Gestione Cronometro
         function avviaCronometro(startTime) {
             const giroStartTime = parseInt(startTime);
             if (isNaN(giroStartTime)) return;
@@ -774,21 +799,62 @@
             cronometroDisplay.textContent = '00:00:00';
         }
 
-        // Logica del Giro
         function aggiornaUIGiroInCorso() {
             const nomeFattorino = localStorage.getItem('nomeFattorino');
             const oraPartenza = localStorage.getItem('giroOraPartenza');
-            const clientiJSON = localStorage.getItem('giroClienti');
-            const clienti = clientiJSON ? JSON.parse(clientiJSON) : [];
+            // Ora 'giroClienti' è un array di oggetti
+            const clientiDataJSON = localStorage.getItem('giroClienti');
+            const clientiData = clientiDataJSON ? JSON.parse(clientiDataJSON) : [];
 
             giroAttivoFattorino.textContent = nomeFattorino || 'N/D';
             giroAttivoOraPartenza.textContent = oraPartenza || 'N/D';
             
-            clientiDaServireLista.innerHTML = '';
-            if (clienti.length > 0) {
-                clienti.forEach(cliente => {
+            clientiDaServireLista.innerHTML = ''; // Pulisce la lista precedente
+            if (clientiData.length > 0) {
+                clientiData.forEach((cliente, index) => {
                     const li = document.createElement('li');
-                    li.textContent = cliente;
+                    
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.id = `cliente-consegna-${index}`;
+                    checkbox.checked = cliente.consegnato;
+                    checkbox.disabled = cliente.consegnato; // Disabilita se già consegnato
+                    checkbox.dataset.clienteIndex = index;
+
+                    const label = document.createElement('label');
+                    label.htmlFor = `cliente-consegna-${index}`;
+                    
+                    const nomeClienteSpan = document.createElement('span');
+                    nomeClienteSpan.classList.add('nome-cliente');
+                    nomeClienteSpan.textContent = cliente.nome;
+                    label.appendChild(nomeClienteSpan);
+
+                    if (cliente.consegnato) {
+                        label.classList.add('cliente-consegnato-label');
+                        const orarioSpan = document.createElement('span');
+                        orarioSpan.classList.add('orario-consegna');
+                        orarioSpan.textContent = `(${cliente.oraConsegnaFormattata})`;
+                        label.appendChild(orarioSpan);
+                    }
+                    
+                    checkbox.addEventListener('change', (event) => {
+                        const idx = parseInt(event.target.dataset.clienteIndex);
+                        const clientiAttuali = JSON.parse(localStorage.getItem('giroClienti') || '[]');
+                        
+                        if (event.target.checked && !clientiAttuali[idx].consegnato) {
+                            const now = Date.now();
+                            clientiAttuali[idx].consegnato = true;
+                            clientiAttuali[idx].timestampConsegna = now;
+                            clientiAttuali[idx].oraConsegnaFormattata = formatTimeOnlyForDisplay(now);
+                            
+                            localStorage.setItem('giroClienti', JSON.stringify(clientiAttuali));
+                            mostraNotifica(`Consegna a ${clientiAttuali[idx].nome} registrata alle ${clientiAttuali[idx].oraConsegnaFormattata}!`);
+                            aggiornaUIGiroInCorso(); // Ricarica la lista per aggiornare lo stato (checkbox disabilitata, testo)
+                        }
+                    });
+
+                    li.appendChild(checkbox);
+                    li.appendChild(label);
                     clientiDaServireLista.appendChild(li);
                 });
             } else {
@@ -839,7 +905,8 @@
 
                 const nomeFattorino = localStorage.getItem('giroFattorino');
                 const oraPartenza = localStorage.getItem('giroOraPartenza');
-                const clienti = JSON.parse(localStorage.getItem('giroClienti') || '[]');
+                // Recupera i dati dei clienti con lo stato di consegna
+                const clientiData = JSON.parse(localStorage.getItem('giroClienti') || '[]');
 
                 let messaggio = `RIEPILOGO GIRO CONSEGNE\n`;
                 messaggio += `Fattorino: ${nomeFattorino}\n`;
@@ -847,7 +914,15 @@
                 messaggio += `Data e Ora Fine: ${oraFineFormattata}\n`;
                 messaggio += `Durata Totale: ${durataFormattataMsg}\n`;
                 messaggio += `Clienti serviti:\n`;
-                clienti.forEach(c => messaggio += `- ${c}\n`);
+                clientiData.forEach(c => {
+                    messaggio += `- ${c.nome}`;
+                    if (c.consegnato) {
+                        messaggio += ` (Consegnato: ${c.oraConsegnaFormattata})`;
+                    } else {
+                        messaggio += ` (Non consegnato)`;
+                    }
+                    messaggio += `\n`;
+                });
 
                 window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(messaggio)}`, '_blank');
 
@@ -858,8 +933,10 @@
                     oraPartenza,
                     oraFine: oraFineFormattata,
                     durata: durataFormattataMsg,
-                    clientiCount: clienti.length,
-                    clientiList: clienti 
+                    clientiList: clientiData, // Salva l'array di oggetti dettagliato
+                    // clientiCount è il totale, clientiServitiCount è quanti effettivamente consegnati
+                    clientiCount: clientiData.length, 
+                    clientiServitiCount: clientiData.filter(c => c.consegnato).length 
                 };
                 salvaInCronologia(giroConcluso);
 
@@ -867,7 +944,7 @@
                 localStorage.removeItem('giroStartTime');
                 localStorage.removeItem('giroOraPartenza');
                 localStorage.removeItem('giroFattorino');
-                localStorage.removeItem('giroClienti');
+                localStorage.removeItem('giroClienti'); // Rimuove i dati dettagliati del giro attivo
 
                 aggiornaUINessunGiro();
                 mostraNotifica('Giro concluso con successo!');
@@ -881,11 +958,19 @@
                     return;
                 }
 
-                const clienti = getClientiInseriti();
-                if (clienti.length === 0) {
+                const clientiNomi = getClientiInseriti();
+                if (clientiNomi.length === 0) {
                     mostraNotifica('Inserisci almeno un cliente', 'errore');
                     return;
                 }
+                // Trasforma i nomi dei clienti in oggetti con stato di consegna
+                const clientiData = clientiNomi.map(nome => ({ 
+                    nome: nome, 
+                    consegnato: false, 
+                    oraConsegnaFormattata: null,
+                    timestampConsegna: null 
+                }));
+
 
                 const startTime = Date.now();
                 const oraPartenzaFormattata = formatDateTimeForMessage(startTime);
@@ -894,13 +979,13 @@
                 localStorage.setItem('giroStartTime', startTime.toString());
                 localStorage.setItem('giroOraPartenza', oraPartenzaFormattata);
                 localStorage.setItem('giroFattorino', nomeFattorino);
-                localStorage.setItem('giroClienti', JSON.stringify(clienti));
+                localStorage.setItem('giroClienti', JSON.stringify(clientiData)); // Salva i dati dettagliati
 
                 let messaggio = `INIZIO GIRO CONSEGNE\n`;
                 messaggio += `Fattorino: ${nomeFattorino}\n`;
                 messaggio += `Data e Ora Partenza: ${oraPartenzaFormattata}\n`;
                 messaggio += `Clienti da servire:\n`;
-                clienti.forEach(c => messaggio += `- ${c}\n`);
+                clientiData.forEach(c => messaggio += `- ${c.nome}\n`); // Messaggio iniziale mostra solo i nomi
                 
                 window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(messaggio)}`, '_blank');
                 
@@ -909,7 +994,6 @@
             }
         });
 
-        // Gestione Cronologia
         const MAX_CRONOLOGIA_ITEMS = 5;
         function getCronologia() {
             const cronologiaJSON = localStorage.getItem('cronologiaGiri');
@@ -950,12 +1034,15 @@
 
                 const summaryDiv = document.createElement('div');
                 summaryDiv.classList.add('history-item-summary');
+                const clientiServitiCount = giro.clientiList.filter(c => c.consegnato).length;
+                const totalClienti = giro.clientiList.length;
+
                 summaryDiv.innerHTML = `
                     <p><strong>Fattorino:</strong> ${giro.nomeFattorino}</p>
-                    <p>${calendarIconSVG} <strong>Data:</strong> ${giro.data} (${giro.oraPartenza.split(' ')[1]} - ${giro.oraFine.split(' ')[1]})</p>
+                    <p>${calendarIconSVG} <strong>Data:</strong> ${giro.data} (${formatTimeOnlyForDisplay(new Date(giro.oraPartenza.split(', ')[0].split('/').reverse().join('-') + 'T' + giro.oraPartenza.split(', ')[1]))} - ${formatTimeOnlyForDisplay(new Date(giro.oraFine.split(', ')[0].split('/').reverse().join('-') + 'T' + giro.oraFine.split(', ')[1]))})</p>
                     <p>${clockIconSVG} <strong>Durata:</strong> ${giro.durata}</p>
                     <p class="clienti-count-clickable" title="Clicca per vedere i clienti">
-                        ${usersIconSVG} <strong>Clienti:</strong> ${giro.clientiCount} (dettagli)
+                        ${usersIconSVG} <strong>Clienti:</strong> ${clientiServitiCount} / ${totalClienti} serviti (dettagli)
                     </p>
                 `;
                 
@@ -974,7 +1061,15 @@
                         if (giro.clientiList && giro.clientiList.length > 0) {
                             giro.clientiList.forEach(cliente => {
                                 const clienteLi = document.createElement('li');
-                                clienteLi.textContent = cliente;
+                                let testoCliente = cliente.nome;
+                                if (cliente.consegnato) {
+                                    clienteLi.classList.add('cliente-consegnato');
+                                    testoCliente += ` (Consegnato: ${cliente.oraConsegnaFormattata})`;
+                                } else {
+                                    clienteLi.classList.add('cliente-non-consegnato');
+                                    testoCliente += ` (Non consegnato)`;
+                                }
+                                clienteLi.textContent = testoCliente;
                                 clientListUl.appendChild(clienteLi);
                             });
                         } else {
@@ -995,7 +1090,7 @@
             showModal(
                 'Conferma Cancellazione', 
                 'Sei sicuro di voler cancellare tutta la cronologia? L\'azione è irreversibile.',
-                () => { // Funzione di callback per la conferma
+                () => { 
                     localStorage.removeItem('cronologiaGiri');
                     caricaCronologia();
                     mostraNotifica('Cronologia cancellata.');
@@ -1003,7 +1098,6 @@
             );
         });
 
-        // Inizializzazione App
         function initApp() {
             caricaNomeFattorino();
             aggiungiCampoCliente(); 
